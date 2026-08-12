@@ -32,6 +32,7 @@ Menu
 <li id="ExpBtn" class="hover:text-white hover:cursor-pointer"><i class="fa-solid fa-briefcase"></i> <span class="inline-block pl-2">Experience</span></li>
 <li id="ServicesBtn" class="hover:text-white hover:cursor-pointer"><i class="fa-brands fa-servicestack"></i> <span class="inline-block pl-2">Services</span></li>
 <li id="AboutBtn" class="hover:text-white hover:cursor-pointer"><i class="fa-solid fa-user"></i> <span class="inline-block pl-2">About</span></li>
+<li id="ProjectsBtn" class="hover:text-white hover:cursor-pointer"><i class="fa-solid fa-diagram-project"></i> <span class="inline-block pl-2">Projects</span></li>
 <li id="PriceBtn" class="hover:text-white hover:cursor-pointer"><i class="fa-solid fa-tags"></i> <span class="inline-block pl-2">Pricing</span></li>
 <li id="ContactBtn" class="hover:text-white hover:cursor-pointer"><i class="fa-regular fa-envelope"></i><span class="inline-block pl-2">Contact</span></li>
 
@@ -68,10 +69,17 @@ Social Networks
 <!-- Side Bar Menu Ends here -->
 
 <button id="OpenBtn" class=" group fixed z-20 left-64 sm:left-[80%] sm:top-10 sm:right-0 ">
-<i class="fa-brands fa-elementor  text-4xl sm:text-5xl  text-orange-600 hover:cursor-pointer transform transition-transform duration-300 hover:scale-110"></i> 
+<i class="fa-solid fa-bars  text-3xl sm:text-3xl  text-orange-600 hover:cursor-pointer transform transition-transform duration-300 hover:scale-110"></i> 
 </button>
-<!-- Home Section -->
-<div id="info-card" class="w-[90%] max-w-[880px] h-[620px] bg-lightblack mx-auto mt-8 rounded-3xl shadow-inner overflow-y-auto hide-scrollbar" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+</div>
+<!-- relative w-full wrapper (Overlay/SideBar/OpenBtn) closed here -->
+
+<!-- Page Layout: Sticky Profile Sidebar (left) + Main Content (right) -->
+<div class="w-[90%] max-w-[1400px] mx-auto mt-8 flex flex-col lg:flex-row lg:items-start gap-8">
+
+<!-- Sticky Profile Sidebar -->
+<aside id="ProfileSidebar" class="w-full lg:w-[360px] lg:flex-shrink-0 lg:sticky lg:top-2 lg:self-start">
+<div id="info-card" class="w-full h-auto bg-lightblack mx-auto rounded-3xl shadow-inner overflow-y-auto hide-scrollbar" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
   <div class="flex flex-wrap items-center justify-between">
     <div class="ml-8 mt-12 sm:mt-12 flex items-center">
       <i class="fa-solid fa-file-invoice text-3xl sm:text-4xl text-white"></i>
@@ -84,7 +92,7 @@ Social Networks
   </div>
 
   <div>
-    <img src="${pro}" alt="Profile Picture" class="w-56 sm:w-72 h-72 object-cover rounded-2xl mx-auto mt-12 flex-wrap" />
+    <img src="${pro}" alt="Profile Picture" class="w-56 sm:w-26 h-26 object-cover rounded-2xl mx-auto mt-12 flex-wrap" />
     <div class="text-center mt-4 mx-auto">
       <p class="text-white text-opacity-85 font-rajdhani mt-8 text-xl">umertahir141@gmail.com</p>
       <p class="text-white text-opacity-30 font-rajdhani mt-2 text-md">Based in Lahore, Pakistan</p>
@@ -113,14 +121,15 @@ Social Networks
     </div>
   </div>
 </div> <!-- ✅ Properly closed info-card -->
-</div>
+</aside>
+<!-- Sticky Profile Sidebar Ends -->
 
 <!-- Rest of Portfolio -->
-<div class="w-[90%] max-w-[880px] mx-auto mt-8">
+<div class="w-full max-w-[100%] mx-auto lg:mx-0 flex-1 min-w-0">
 
   <!-- Intro Section -->
 
-  <div id="intro" class="mt-10">
+  <div id="intro" class="mt-10 lg:mt-0">
     <div>
       <span class="relative pl-4 text-xl text-white text-opacity-60 font-rajdhani before:content-[''] before:opacity-60 before:w-2 before:h-2 before:rounded-full before:bg-white before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2">Introduction</span>
       <h1 class="text-4xl text-white font-rajdhani mt-10 opacity-0" data-animate="fade-in-left2">Welcome to Portfolio of,<br/>Muhammad Umar Tahir</h1>
@@ -141,8 +150,10 @@ Social Networks
     <span class="font-rajdhani text-white bg-buttoncol rounded-2xl px-4 py-2">Laravel</span>
     <span class="font-rajdhani text-white bg-buttoncol rounded-2xl px-4 py-2">Tailwind</span>
     <span class="font-rajdhani text-white bg-buttoncol rounded-2xl px-4 py-2">MySQL</span>
-    </div>
 
+    <div class="w-full h-0"></div> <!-- Acts like a <br> in flex -->
+
+    <span class="font-rajdhani text-white bg-buttoncol rounded-2xl px-4 py-2">PostgreSQL</span>
     </div>
 
 
@@ -162,7 +173,7 @@ Social Networks
         Projects Done
       </span>
       <div class="flex sm:mt-20 mt-16 justify-end mr-6">
-      <span class="counter text-white font-rajdhani sm:text-8xl md:text-8xl text-6xl" data-target="5">0</span>
+      <span class="counter text-white font-rajdhani sm:text-8xl md:text-8xl text-6xl" data-target="15">0</span>
       <span class="text-white font-rajdhani sm:text-6xl md:text-6xl text-5xl ml-1 mt-2 sm:mt-8">+</span>
       </div>
     </div>
@@ -206,11 +217,11 @@ Social Networks
     <!-- The 1st Company -->
 
   <div class="group">  
-  <span class="sm:text-xl text-lg text-white text-opacity-60 font-rajdhani">Career Institute</span>
+  <span class="sm:text-xl text-lg text-white text-opacity-60 font-rajdhani">PurlStudios</span>
     
     <div class="flex mt-2 justify-between">
-    <span class="text-white font-rajdhani sm:text-2xl text-xl group-hover:text-orange-600 transition-colors duration-300">Full-Stack Developer</span>
-    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol group-hover:bg-orange-600 transition-colors duration-300">2025-Present</span>
+    <span class="text-white font-rajdhani sm:text-2xl text-xl group-hover:text-orange-600 transition-colors duration-300">Lead Full-Stack Developer</span>
+    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol group-hover:bg-orange-600 transition-colors duration-300">Present</span>
 
     </div>
     <div class="bg-buttoncol border border-buttoncol  mt-4 mb-2 group-hover:border-orange-600 transition-colors duration-300"></div>
@@ -219,17 +230,30 @@ Social Networks
    <!-- The 2nd Company -->
 
     <div class="group mt-6">  
-    <span class="sm:text-xl text-lg text-white text-opacity-60 font-rajdhani">Noah Holdings</span>
+    <span class="sm:text-xl text-lg text-white text-opacity-60 font-rajdhani">Zahaco</span>
     
     <div class="flex mt-2 justify-between">
-    <span class="text-white font-rajdhani sm:text-2xl text-xl group-hover:text-orange-600 transition-colors duration-300">Tech Support</span>
-    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol group-hover:bg-orange-600 transition-colors duration-300">2023-2024</span>
+    <span class="text-white font-rajdhani sm:text-2xl text-xl group-hover:text-orange-600 transition-colors duration-300">Ecommerce Developer &mdash; Shopify, Funnels</span>
+    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol group-hover:bg-orange-600 transition-colors duration-300">2025-2026</span>
 
     </div>
     <div class="bg-buttoncol border border-buttoncol  mt-4 mb-2 group-hover:border-orange-600 transition-colors duration-300"></div>
     </div>
 
     <!-- The 3rd Company -->
+
+    <div class="group mt-6">  
+    <span class="sm:text-xl text-lg text-white text-opacity-60 font-rajdhani">Csoft Systems</span>
+    
+    <div class="flex mt-2 justify-between">
+    <span class="text-white font-rajdhani sm:text-2xl text-xl group-hover:text-orange-600 transition-colors duration-300">Full-Stack Developer</span>
+    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol group-hover:bg-orange-600 transition-colors duration-300">2025</span>
+
+    </div>
+    <div class="bg-buttoncol border border-buttoncol  mt-4 mb-2 group-hover:border-orange-600 transition-colors duration-300"></div>
+    </div>
+
+    <!-- The 4th Company -->
 
     <div class="group mt-6">  
     <span class="sm:text-xl text-lg text-white text-opacity-60 font-rajdhani">Technisia</span>
@@ -248,7 +272,7 @@ Social Networks
   
    <!-- MY SERVICES CARD Section -->
   
-   <div id="Myservices" class="w-[90%] max-w-[880px] sm:h-[960px] h-[800px] bg-lightblack mx-auto mt-16 rounded-3xl shadow-inner" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+   <div id="Myservices" class="w-full max-w-[880px] h-auto bg-lightblack mx-auto mt-16 rounded-3xl shadow-inner pb-16" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
     <!-- Heading -->
    <div class=" flex flex-col flex-wrap " >
     <span class=" mt-20 ml-16 relative pl-4 text-xl text-white text-opacity-60  font-rajdhani before:content-[''] before:opacity-40 before:w-2 before:h-2 before:rounded-full before:bg-white before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2">My Services</span>
@@ -283,6 +307,26 @@ Social Networks
     <!-- 4th Service -->
     <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
     <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">Cloudnary Storage<span class="sm:text-lg text-sm absolute ">[04]</span></p>
+    </div>
+    <!-- 5th Service -->
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">CloudFlare R2<span class="sm:text-lg text-sm absolute ">[05]</span></p>
+    </div>
+    <!-- 6th Service -->
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">Docker<span class="sm:text-lg text-sm absolute ">[06]</span></p>
+    </div>
+    <!-- 7th Service -->
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">WebSockets<span class="sm:text-lg text-sm absolute ">[07]</span></p>
+    </div>
+    <!-- 8th Service -->
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">Shopify<span class="sm:text-lg text-sm absolute ">[08]</span></p>
+    </div>
+    <!-- 9th Service -->
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">Ecom Funnels<span class="sm:text-lg text-sm absolute ">[09]</span></p>
     </div>
 
     <!-- Card Footer -->
@@ -400,6 +444,12 @@ Social Networks
   <i class="fa-brands fa-laravel text-7xl mt-4" style="color: #ff2934;"></i>
   <span class="text-white font-rajdhani text-sm mt-2 block">PHP framework for web artisans</span>
   </div>
+  <!-- 9th PostgreSQL Card -->
+  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-1/2 md:w-60 text-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <span class="text-white font-rajdhani text-3xl font-semibold justify-center mt-8 block">PostgreSQL</span>
+  <i class="fa-solid fa-database text-7xl mt-4" style="color: #4169E1;"></i>
+  <span class="text-white font-rajdhani text-sm mt-2 block">Advanced relational database</span>
+  </div>
   </div> <!-- Viewport ends here -->
   </div>
   <!-- Carousel wrapper ends here -->
@@ -515,6 +565,123 @@ Social Networks
  </div>
  <!-- Work Process Section ends here -->
 
+ <!-- My Projects Section -->
+ <div id="My-Projects" class="mt-16 w-[90%] max-w-[880px] mx-auto">
+  <!-- Heading -->
+  <div class="flex flex-wrap justify-between items-center">
+    <span class="font-rajdhani text-white text-5xl sm:text-7xl font-medium">My Projects</span>
+    <div class="buttonwrapper flex gap-2">
+    <button id="projPrevBtn" class="hover:text-orange-600 text-2xl text-white px-3 py-2 rounded-full z-10 border border-white/20">
+      &#10094;
+    </button>
+    <button id="projNextBtn" class="hover:text-orange-600 text-2xl text-white px-3 py-2 rounded-full z-10 border border-white/20">
+      &#10095;
+    </button>
+    </div>
+  </div>
+
+  <!-- Projects Slider Viewport -->
+  <div class="overflow-hidden w-full mt-10">
+    <div id="projects-carousel" class="flex transition-transform duration-700 ease-in-out">
+
+      <!-- Slide 1 -->
+      <div class="w-full flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-1">
+
+        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
+            <i class="fa-solid fa-square-parking text-6xl" style="color:#f7f7f7;"></i>
+          </div>
+          <div class="p-6 flex flex-col flex-1">
+            <span class="text-white font-rajdhani text-2xl font-semibold">ParkInn Management System</span>
+            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Reserve parking spots online, pay securely, and manage a fully digitized parking experience end-to-end.</p>
+          </div>
+        </div>
+
+        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
+            <i class="fa-solid fa-spa text-6xl" style="color:#f7f7f7;"></i>
+          </div>
+          <div class="p-6 flex flex-col flex-1">
+            <span class="text-white font-rajdhani text-2xl font-semibold">Smooth Spine</span>
+            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Sales funnel and Shopify store built for a neck massager brand, driving conversions from ad to checkout.</p>
+          </div>
+        </div>
+
+        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
+            <i class="fa-solid fa-pump-soap text-6xl" style="color:#f7f7f7;"></i>
+          </div>
+          <div class="p-6 flex flex-col flex-1">
+            <span class="text-white font-rajdhani text-2xl font-semibold">Olavita</span>
+            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Sales funnel and Shopify store built for a skin care brand, focused on clean design and fast checkout.</p>
+          </div>
+        </div>
+
+      </div>
+      <!-- Slide 1 ends -->
+
+      <!-- Slide 2 -->
+      <div class="w-full flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-1">
+
+        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
+            <i class="fa-solid fa-flask text-6xl" style="color:#f7f7f7;"></i>
+          </div>
+          <div class="p-6 flex flex-col flex-1">
+            <span class="text-white font-rajdhani text-2xl font-semibold">Reverse Engineer</span>
+            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Sales funnel and Shopify store built for a skin care brand, engineered for high-intent traffic.</p>
+          </div>
+        </div>
+
+        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
+            <i class="fa-brands fa-bitcoin text-6xl" style="color:#f7f7f7;"></i>
+          </div>
+          <div class="p-6 flex flex-col flex-1">
+            <span class="text-white font-rajdhani text-2xl font-semibold">Crypto Profile</span>
+            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Personal crypto profile site built for Rehan Zaffar, showcasing portfolio and market presence.</p>
+          </div>
+        </div>
+
+        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
+            <i class="fa-solid fa-bag-shopping text-6xl" style="color:#f7f7f7;"></i>
+          </div>
+          <div class="p-6 flex flex-col flex-1">
+            <span class="text-white font-rajdhani text-2xl font-semibold">TryBello</span>
+            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Shopify store and sales funnel built to turn browsing visitors into first-time buyers.</p>
+          </div>
+        </div>
+
+      </div>
+      <!-- Slide 2 ends -->
+
+      <!-- Slide 3 -->
+      <div class="w-full flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-1">
+
+        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
+            <i class="fa-solid fa-shirt text-6xl" style="color:#f7f7f7;"></i>
+          </div>
+          <div class="p-6 flex flex-col flex-1">
+            <span class="text-white font-rajdhani text-2xl font-semibold">PurlStudios</span>
+            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Fully loaded apparel system built with live chat, order management, and a complete storefront.</p>
+          </div>
+        </div>
+
+      </div>
+      <!-- Slide 3 ends -->
+
+    </div>
+  </div>
+  <!-- Projects Slider Viewport ends -->
+
+  <!-- Dots -->
+  <div id="projDots" class="flex justify-center gap-2 mt-8"></div>
+
+ </div>
+ <!-- My Projects Section ends here -->
+
  <!-- My PRICING Section -->
  <div id="My-pricing" class="w-[90%] max-w-[880px] mx-auto mt-16">
 
@@ -584,7 +751,7 @@ Social Networks
 
 
 <!-- Footer Starts here -->
- <div id="Footer" class="flex items-center justify-center mt-16 py-8 px-12 bg-gradient-to-tl from-orange-600/70 from-[6%] via-transparent to-lightblack h-[500px] mx-auto">
+ <div id="Footer" class="flex items-center justify-center mt-16 py-8 px-12  h-[500px] mx-auto">
 <!-- Footer Content -->
 <div id="Contact-BTN" class="Contact-BTN hover:cursor-pointer text-center mx-auto rounded-full py-4 px-2 sm:py-14 sm:px-2 w-full max-w-[600px] bg-lightbg bg-opacity-40">
 
@@ -606,16 +773,35 @@ Social Networks
       <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
       Book A Call
     </span>
+    <span class="inline-flex items-center gap-3">
+      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
+      Book A Call
+    </span>
+    <span class="inline-flex items-center gap-3">
+      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
+      Book A Call
+    </span>
+    <span class="inline-flex items-center gap-3">
+      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
+      Book A Call
+    </span>
+    <span class="inline-flex items-center gap-3">
+      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
+      Book A Call
+    </span>
 
     </marquee>
     
   
   </div>
 </div>
+<!-- Footer Ends -->
 
  </div>
+ <!-- Main Content Column Ends -->
 
- 
+ </div>
+ <!-- Page Layout Ends -->
 
   
 `
@@ -761,6 +947,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const expBtn = document.getElementById("ExpBtn");
     const servicesBtn = document.getElementById("ServicesBtn");
     const aboutBtn = document.getElementById("AboutBtn");
+    const projectsBtn = document.getElementById("ProjectsBtn");
     const priceBtn = document.getElementById("PriceBtn");
     const contactBtn = document.getElementById("ContactBtn");
 
@@ -810,6 +997,13 @@ homeBtn.addEventListener("click", () => {
   aboutBtn.addEventListener("click", () => {
     closeSidebar();
     document.getElementById("About-me").scrollIntoView({
+      behavior: "smooth"
+    });
+  });
+
+  projectsBtn.addEventListener("click", () => {
+    closeSidebar();
+    document.getElementById("My-Projects").scrollIntoView({
       behavior: "smooth"
     });
   });
@@ -1007,6 +1201,85 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Init
   applyCardWidths();
+  startAutoplay();
+});
+
+
+// ✅ My Projects slider (3 cards per slide, dots + prev/next, autoplay)
+document.addEventListener("DOMContentLoaded", () => {
+  const projCarousel = document.getElementById("projects-carousel");
+  if (!projCarousel) return;
+
+  const slides = Array.from(projCarousel.children);
+  const dotsWrap = document.getElementById("projDots");
+  const prevBtn = document.getElementById("projPrevBtn");
+  const nextBtn = document.getElementById("projNextBtn");
+  const autoplayDelay = 4000;
+
+  let index = 0;
+  let autoplayId;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const dot = document.createElement("span");
+    dot.className = "w-2.5 h-2.5 rounded-full cursor-pointer transition-colors duration-300 " +
+      (i === 0 ? "bg-orange-600" : "bg-white bg-opacity-30");
+    dot.addEventListener("click", () => {
+      index = i;
+      update();
+      restartAutoplay();
+    });
+    dotsWrap.appendChild(dot);
+  });
+
+  const dots = Array.from(dotsWrap.children);
+
+  function update() {
+    projCarousel.style.transform = `translateX(-${index * 100}%)`;
+    dots.forEach((d, i) => {
+      d.className = "w-2.5 h-2.5 rounded-full cursor-pointer transition-colors duration-300 " +
+        (i === index ? "bg-orange-600" : "bg-white bg-opacity-30");
+    });
+  }
+
+  function goNext() {
+    index = (index + 1) % slides.length;
+    update();
+  }
+
+  function goPrev() {
+    index = (index - 1 + slides.length) % slides.length;
+    update();
+  }
+
+  function startAutoplay() {
+    stopAutoplay();
+    autoplayId = setInterval(goNext, autoplayDelay);
+  }
+
+  function stopAutoplay() {
+    clearInterval(autoplayId);
+    autoplayId = null;
+  }
+
+  function restartAutoplay() {
+    startAutoplay();
+  }
+
+  nextBtn.addEventListener("click", () => {
+    goNext();
+    restartAutoplay();
+  });
+
+  prevBtn.addEventListener("click", () => {
+    goPrev();
+    restartAutoplay();
+  });
+
+  projCarousel.parentElement.addEventListener("mouseenter", stopAutoplay);
+  projCarousel.parentElement.addEventListener("mouseleave", startAutoplay);
+
+  update();
   startAutoplay();
 });
 
