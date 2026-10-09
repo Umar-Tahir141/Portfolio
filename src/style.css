@@ -33,4 +33,153 @@ select:autofill {
   -moz-text-fill-color: white !important;
 }
 
+/* =========================================================================
+   Motion & interaction polish
+   ========================================================================= */
 
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+#intro, #Experience, #Myservices, #About-me, #Work-Process,
+#My-Projects, #My-pricing, #Contact-Form { scroll-margin-top: 1.5rem; }
+
+/* ---- Scroll reveal (runs once; hidden only when JS can reveal it) ---- */
+.reveal-ready .reveal {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1);
+}
+.reveal-ready .reveal.is-visible { opacity: 1; transform: none; }
+
+.reveal-stagger > * {
+  transition: opacity .6s ease var(--stagger, 0ms),
+              transform .6s cubic-bezier(.2, .7, .2, 1) var(--stagger, 0ms),
+              translate .35s ease, box-shadow .35s ease;
+}
+.reveal-ready .reveal-stagger > * { opacity: 0; transform: translate3d(0, 24px, 0); }
+.reveal-ready .reveal-stagger.is-visible > * { opacity: 1; transform: none; }
+
+/* ---- Letter headings ---- */
+.letter { transition: opacity .35s ease; }
+
+.scroll-word { display: inline-block; white-space: nowrap; }
+.scroll-letter { display: inline-block; opacity: .6; transition: opacity 400ms ease-out; }
+
+/* ---- Social icons ---- */
+.social-link {
+  transition: background-color .3s ease, border-color .3s ease,
+              transform .3s cubic-bezier(.2, .7, .2, 1), box-shadow .3s ease;
+}
+.social-link i { transition: transform .3s cubic-bezier(.2, .7, .2, 1); }
+@media (hover: hover) {
+  .social-link:hover { transform: translateY(-3px); box-shadow: 0 10px 18px -10px rgba(255, 255, 255, .55); }
+  .social-link:hover i { transform: scale(1.08); }
+}
+.social-link:focus-visible { transform: translateY(-3px); }
+.social-link:active { transform: scale(.94); }
+
+/* ---- Shared focus ring (keyboard users) ---- */
+.social-link:focus-visible,
+.Contact-BTN:focus-visible,
+.menu-list li:focus-visible,
+.menu-close:focus-visible,
+.carousel-btn:focus-visible,
+.proj-dot:focus-visible,
+#OpenBtn:focus-visible,
+#work-process-viewport:focus-visible {
+  outline: 2px solid #ea580c;
+  outline-offset: 4px;
+}
+#work-process-viewport:focus-visible { outline-offset: -2px; border-radius: 1rem; }
+
+/* ---- Menu, buttons, links ---- */
+.menu-list li { transition: color .3s ease, transform .3s ease; }
+@media (hover: hover) { .menu-list li:hover { transform: translateX(4px); } }
+.menu-list li:focus-visible { color: #fff; transform: translateX(4px); }
+
+.carousel-btn { transition: color .3s ease, border-color .3s ease, transform .2s ease; }
+.carousel-btn:active { transform: scale(.92); }
+
+.Contact-BTN .fa-arrow-up-right-from-square { transition: color .3s ease, transform .3s cubic-bezier(.2, .7, .2, 1); }
+@media (hover: hover) {
+  .Contact-BTN:hover .fa-arrow-up-right-from-square { transform: translate(2px, -2px); }
+}
+.Contact-BTN:focus-visible .fa-arrow-up-right-from-square { transform: translate(2px, -2px); }
+
+.proj-dot { position: relative; }
+.proj-dot::after { content: ""; position: absolute; inset: -12px -4px; } /* larger tap target, same look */
+
+/* ---- Tech stack cards ---- */
+@media (hover: hover) {
+  .tech-card:hover { translate: 0 -4px; }
+}
+
+/* ---- Projects carousel ---- */
+.projects-track {
+  --gap: 24px;
+  gap: var(--gap);
+  transition: transform 700ms ease-in-out;
+  will-change: transform;
+}
+.project-card {
+  /* one card per slide on phones, 2 on tablets / narrow columns, 3 on desktop (set by JS) */
+  flex: 0 0 calc((100% - (var(--per-view, 1) - 1) * var(--gap)) / var(--per-view, 1));
+  min-width: 0;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, .3);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.reveal-stagger > .project-card,
+.project-card {
+  transition: opacity .6s ease var(--stagger, 0ms),
+              transform .6s cubic-bezier(.2, .7, .2, 1) var(--stagger, 0ms),
+              translate .35s ease, box-shadow .35s ease;
+}
+.project-media i { transition: transform .6s cubic-bezier(.2, .7, .2, 1); }
+@media (hover: hover) {
+  .project-card:hover {
+    translate: 0 -6px;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, .3),
+                inset 0 0 0 1px rgba(234, 88, 12, .55),
+                0 14px 22px -14px rgba(234, 88, 12, .5);
+  }
+  .project-card:hover .project-media i { transform: scale(1.12); }
+}
+
+/* ---- Work process carousel ---- */
+#carousel-2 { will-change: transform; }
+.wp-card { container-type: inline-size; user-select: none; -webkit-user-select: none; }
+/* The step icon only fits beside the text on wide cards; on narrow cards it wrapped and got clipped */
+@container (max-width: 559px) {
+  .wp-icon { display: none !important; }
+}
+
+/* ---- "Book A Call" marquee: two identical groups, track moves exactly one group per cycle ---- */
+.marquee__viewport { overflow: hidden; }
+.marquee__track {
+  display: flex;
+  width: max-content;
+  animation: marquee-right var(--marquee-duration, 25s) linear infinite;
+  will-change: transform;
+}
+.marquee__track.is-paused { animation-play-state: paused; }
+.marquee__group { display: flex; flex-shrink: 0; }
+.marquee__item { flex-shrink: 0; white-space: nowrap; padding-right: .35em; }
+@keyframes marquee-right {
+  from { transform: translate3d(-50%, 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  [data-animate] { animation: none !important; opacity: 1 !important; }
+  .marquee__track { animation: none; }
+  .projects-track, #carousel, #carousel-2 { transition: none !important; }
+  .letter, .scroll-letter, .social-link, .social-link i, .project-card, .project-media i,
+  .menu-list li, .carousel-btn, .Contact-BTN .fa-arrow-up-right-from-square, .tech-card {
+    transition-duration: .01ms !important;
+    transition-delay: 0s !important;
+  }
+  .project-card:hover, .tech-card:hover, .social-link:hover, .social-link:focus-visible { translate: none; transform: none; }
+}

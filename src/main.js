@@ -2,8 +2,45 @@ import './style.css'
 import javascriptLogo from './javascript.svg'
 import pro from './assets/pro-pic.jpg'
 import tailcss from './assets/tailwindcss.png'
-import { setupCounter } from './counter.js'
 import vitelogo from './assets/vite.svg'
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+// Scroll-reveal styles only apply once we know JS can reveal the content again
+if (!prefersReducedMotion.matches && 'IntersectionObserver' in window) {
+  document.documentElement.classList.add('reveal-ready')
+}
+
+// Social profiles (shared by the side menu and the profile card)
+const socialLinks = [
+  { name: 'WhatsApp', href: 'https://wa.me/923034200040', icon: 'fa-whatsapp', border: 'border-green-500', color: '#0ecd11' },
+  { name: 'Facebook', href: 'https://www.facebook.com/share/1D7iXn7z8z/', icon: 'fa-facebook-f', border: 'border-blue-700', color: '#1c56ba' },
+  { name: 'Instagram', href: 'https://www.instagram.com/umer7667?cplk=MTFteWR5dG5uaGVw', icon: 'fa-instagram', border: 'border-yellow-500', color: '#de8f21' },
+  { name: 'LinkedIn', href: 'https://www.linkedin.com/in/umer-tahir-304594180', icon: 'fa-linkedin-in', border: 'border-blue-800', color: '#335694' },
+]
+
+const socialLinksHTML = socialLinks.map(s => `
+      <a href="${s.href}" target="_blank" rel="noopener noreferrer" title="${s.name}" aria-label="${s.name} (opens in a new tab)"
+         class="social-link w-11 h-11 sm:w-10 sm:h-10 border ${s.border} rounded-full flex items-center justify-center hover:bg-white hover:border-white focus-visible:bg-white focus-visible:border-white">
+        <i class="fa-brands ${s.icon} fa-lg" style="color: ${s.color};" aria-hidden="true"></i>
+      </a>`).join('')
+
+// Projects shown in the "My Projects" carousel
+const projects = [
+  { title: 'ParkInn Management System', icon: 'fa-square-parking', text: 'Reserve parking spots online, pay securely, and manage a fully digitized parking experience end-to-end.' },
+  { title: 'Smooth Spine', icon: 'fa-spa', text: 'Sales funnel and Shopify store built for a neck massager brand, driving conversions from ad to checkout.' },
+  { title: 'Olavita', icon: 'fa-pump-soap', text: 'Sales funnel and Shopify store built for a skin care brand, focused on clean design and fast checkout.' },
+  { title: 'Reverse Engineer', icon: 'fa-flask', text: 'Sales funnel and Shopify store built for a skin care brand, engineered for high-intent traffic.' },
+  { title: 'Crypto Profile', icon: 'fa-bitcoin', brand: true, text: 'Personal crypto profile site built for Rehan Zaffar, showcasing portfolio and market presence.' },
+  { title: 'TryBello', icon: 'fa-bag-shopping', text: 'Shopify store and sales funnel built to turn browsing visitors into first-time buyers.' },
+  { title: 'PurlStudios', icon: 'fa-shirt', text: 'Fully loaded apparel system built with live chat, order management, and a complete storefront.' },
+]
+
+// "Book A Call" marquee group (rendered twice for a seamless loop)
+const marqueeGroup = (hidden) => `
+      <div class="marquee__group"${hidden ? ' aria-hidden="true"' : ''}>
+        ${Array.from({ length: 4 }, () => `<span class="marquee__item inline-flex items-center gap-3"><span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>Book A Call</span>`).join('')}
+      </div>`
 
 
 document.querySelector('#app').innerHTML = `
@@ -12,22 +49,22 @@ document.querySelector('#app').innerHTML = `
 <div class="relative w-full">
 <!-- Overlay -->
 <div id="Overlay" 
-     class="fixed inset-0 bg-white bg-opacity-20 hidden z-20 transition-opacity duration-500 ease-in-out">
+     class="fixed inset-0 bg-white bg-opacity-20 hidden opacity-0 z-20 transition-opacity duration-500 ease-in-out">
 </div>
 
 <!-- Side Bar Menu Starts here-->
-<div id="SideBar" class=" fixed top-0 right-0 h-full  z-30 w-72 rounded-tl-2xl rounded-bl-2xl bg-black transform translate-x-full transition-transform duration-500 ease-in-out">
+<div id="SideBar" inert aria-hidden="true" aria-label="Site menu" class=" fixed top-0 right-0 h-full  z-30 w-72 rounded-tl-2xl rounded-bl-2xl bg-black transform translate-x-full transition-transform duration-500 ease-in-out">
 <!-- Heading -->
 <div class="mt-12 ml-10 flex flex-wrap justify-between pr-8">
 <span class="relative pl-4 text-white text-opacity-50 font-rajdhani text-2xl sm:text-2xl before:content-[''] before:w-2 before:h-2 before:rounded-full before:bg-orange-600 before:absolute before:left-0 before:top-[15px] before:-translate-y-1/2">
 Menu
 </span>
-<button>
-<i id="CloseBtn" class="fa-solid fa-xmark text-2xl" style="color: #ffffff;"></i>
+<button id="CloseBtn" type="button" aria-label="Close menu" class="menu-close rounded-full">
+<i class="fa-solid fa-xmark text-2xl" style="color: #ffffff;" aria-hidden="true"></i>
 </button>
 </div>
 <!-- Menu Items -->
-<ul class="mt-12 ml-10 font-rajdhani text-white text-opacity-50 text-sm space-y-6">
+<ul class="menu-list mt-12 ml-10 font-rajdhani text-white text-opacity-50 text-sm space-y-6">
 <li id="HomeBtn" class="hover:text-white hover:cursor-pointer"> <i class="fa-solid fa-house"></i> <span class="inline-block pl-2"> Home </span></li>
 <li id="ExpBtn" class="hover:text-white hover:cursor-pointer"><i class="fa-solid fa-briefcase"></i> <span class="inline-block pl-2">Experience</span></li>
 <li id="ServicesBtn" class="hover:text-white hover:cursor-pointer"><i class="fa-brands fa-servicestack"></i> <span class="inline-block pl-2">Services</span></li>
@@ -43,19 +80,8 @@ Menu
 Social Networks
 </span>
 
-<div class="flex  mt-4 space-x-2">
-      <span class="w-10 h-10 border border-green-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-white hover:border-white transition-colors duration-300">
-        <i class="fa-brands fa-whatsapp fa-lg" style="color: #0ecd11;"></i>
-      </span>
-      <span class="w-10 h-10 border border-blue-700 rounded-full flex items-center justify-center cursor-pointer hover:bg-white hover:border-white transition-colors duration-300">
-        <i class="fa-brands fa-facebook-f fa-lg" style="color: #1c56ba;"></i>
-      </span>
-      <span class="w-10 h-10 border border-yellow-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-white hover:border-white transition-colors duration-300">
-        <i class="fa-brands fa-instagram fa-lg" style="color: #de8f21;"></i>
-      </span>
-      <span class="w-10 h-10 border border-blue-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-white hover:border-white transition-colors duration-300">
-        <i class="fa-brands fa-linkedin-in fa-lg" style="color: #335694;"></i>
-      </span>
+<div class="flex mt-4 space-x-2" aria-label="Social networks">
+${socialLinksHTML}
     </div>
 
 </div>
@@ -68,8 +94,8 @@ Social Networks
 </div>
 <!-- Side Bar Menu Ends here -->
 
-<button id="OpenBtn" class=" group fixed z-20 left-64 sm:left-[80%] sm:top-10 sm:right-0 ">
-<i class="fa-solid fa-bars  text-3xl sm:text-3xl  text-orange-600 hover:cursor-pointer transform transition-transform duration-300 hover:scale-110"></i> 
+<button id="OpenBtn" type="button" aria-label="Open menu" aria-controls="SideBar" aria-expanded="false" class=" group fixed z-20 top-4 right-5 sm:left-[80%] sm:top-10 sm:right-0 ">
+<i class="fa-solid fa-bars  text-3xl sm:text-3xl  text-orange-600 hover:cursor-pointer transform transition-transform duration-300 group-hover:scale-110 group-focus-visible:scale-110" aria-hidden="true"></i> 
 </button>
 </div>
 <!-- relative w-full wrapper (Overlay/SideBar/OpenBtn) closed here -->
@@ -98,22 +124,11 @@ Social Networks
       <p class="text-white text-opacity-30 font-rajdhani mt-2 text-md">Based in Lahore, Pakistan</p>
     </div>
 
-    <div class="flex justify-center mt-8 mx-auto space-x-4">
-      <span class="w-10 h-10 border border-green-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-white hover:border-white transition-colors duration-300">
-        <i class="fa-brands fa-whatsapp fa-lg" style="color: #0ecd11;"></i>
-      </span>
-      <span class="w-10 h-10 border border-blue-700 rounded-full flex items-center justify-center cursor-pointer hover:bg-white hover:border-white transition-colors duration-300">
-        <i class="fa-brands fa-facebook-f fa-lg" style="color: #1c56ba;"></i>
-      </span>
-      <span class="w-10 h-10 border border-yellow-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-white hover:border-white transition-colors duration-300">
-        <i class="fa-brands fa-instagram fa-lg" style="color: #de8f21;"></i>
-      </span>
-      <span class="w-10 h-10 border border-blue-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-white hover:border-white transition-colors duration-300">
-        <i class="fa-brands fa-linkedin-in fa-lg" style="color: #335694;"></i>
-      </span>
+    <div class="flex justify-center mt-8 mx-auto space-x-4" aria-label="Social networks">
+${socialLinksHTML}
     </div>
 
-    <div id="Contact-BTN" class="hover:cursor-pointer Contact-BTN group mx-auto mt-8 mb-6 flex items-center border border-white border-opacity-20 rounded-full px-4 py-2 w-[80%] flex-wrap justify-between">
+    <div class="hover:cursor-pointer Contact-BTN group mx-auto mt-8 mb-6 flex items-center border border-white border-opacity-20 rounded-full px-4 py-2 w-[80%] flex-wrap justify-between">
       <span class="text-xl sm:text-3xl text-white font-rajdhani group-hover:text-orange-600 transition-colors duration-300">Get Started</span>
       <span class=" w-14 h-14 border border-white bg-white rounded-full flex items-center justify-center cursor-pointer">
         <i class=" fa-solid fa-arrow-up-right-from-square sm:text-xl text-lg text-black group-hover:text-orange-600 transition-colors duration-300"></i>
@@ -172,7 +187,7 @@ Social Networks
                    before:top-1/2 before:-translate-y-1/2">
         Projects Done
       </span>
-      <div class="flex sm:mt-20 mt-16 justify-end mr-6">
+      <div class="flex sm:mt-20 mt-14 justify-end mr-6">
       <span class="counter text-white font-rajdhani sm:text-8xl md:text-8xl text-6xl" data-target="15">0</span>
       <span class="text-white font-rajdhani sm:text-6xl md:text-6xl text-5xl ml-1 mt-2 sm:mt-8">+</span>
       </div>
@@ -216,12 +231,12 @@ Social Networks
 
     <!-- The 1st Company -->
 
-  <div class="group">  
+  <div class="group reveal">  
   <span class="sm:text-xl text-lg text-white text-opacity-60 font-rajdhani">PurlStudios</span>
     
-    <div class="flex mt-2 justify-between">
+    <div class="flex mt-2 justify-between items-start gap-3">
     <span class="text-white font-rajdhani sm:text-2xl text-xl group-hover:text-orange-600 transition-colors duration-300">Lead Full-Stack Developer</span>
-    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol group-hover:bg-orange-600 transition-colors duration-300">Present</span>
+    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol shrink-0 whitespace-nowrap group-hover:bg-orange-600 transition-colors duration-300">Present</span>
 
     </div>
     <div class="bg-buttoncol border border-buttoncol  mt-4 mb-2 group-hover:border-orange-600 transition-colors duration-300"></div>
@@ -229,12 +244,12 @@ Social Networks
            
    <!-- The 2nd Company -->
 
-    <div class="group mt-6">  
+    <div class="group mt-6 reveal">  
     <span class="sm:text-xl text-lg text-white text-opacity-60 font-rajdhani">Zahaco</span>
     
-    <div class="flex mt-2 justify-between">
+    <div class="flex mt-2 justify-between items-start gap-3">
     <span class="text-white font-rajdhani sm:text-2xl text-xl group-hover:text-orange-600 transition-colors duration-300">Ecommerce Developer &mdash; Shopify, Funnels</span>
-    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol group-hover:bg-orange-600 transition-colors duration-300">2025-2026</span>
+    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol shrink-0 whitespace-nowrap group-hover:bg-orange-600 transition-colors duration-300">2025-2026</span>
 
     </div>
     <div class="bg-buttoncol border border-buttoncol  mt-4 mb-2 group-hover:border-orange-600 transition-colors duration-300"></div>
@@ -242,12 +257,12 @@ Social Networks
 
     <!-- The 3rd Company -->
 
-    <div class="group mt-6">  
+    <div class="group mt-6 reveal">  
     <span class="sm:text-xl text-lg text-white text-opacity-60 font-rajdhani">Csoft Systems</span>
     
-    <div class="flex mt-2 justify-between">
+    <div class="flex mt-2 justify-between items-start gap-3">
     <span class="text-white font-rajdhani sm:text-2xl text-xl group-hover:text-orange-600 transition-colors duration-300">Full-Stack Developer</span>
-    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol group-hover:bg-orange-600 transition-colors duration-300">2025</span>
+    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol shrink-0 whitespace-nowrap group-hover:bg-orange-600 transition-colors duration-300">2025</span>
 
     </div>
     <div class="bg-buttoncol border border-buttoncol  mt-4 mb-2 group-hover:border-orange-600 transition-colors duration-300"></div>
@@ -255,12 +270,12 @@ Social Networks
 
     <!-- The 4th Company -->
 
-    <div class="group mt-6">  
+    <div class="group mt-6 reveal">  
     <span class="sm:text-xl text-lg text-white text-opacity-60 font-rajdhani">Technisia</span>
     
-    <div class="flex mt-2 justify-between">
+    <div class="flex mt-2 justify-between items-start gap-3">
     <span class="text-white font-rajdhani sm:text-2xl text-xl group-hover:text-orange-600 transition-colors duration-300">Front-End Developer</span>
-    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol group-hover:bg-orange-600 transition-colors duration-300">2022-2023</span>
+    <span class="text-white font-rajdhani sm:text-lg text-sm rounded-2xl py-1 px-6 bg-buttoncol shrink-0 whitespace-nowrap group-hover:bg-orange-600 transition-colors duration-300">2022-2023</span>
 
     </div>
     <div class="bg-buttoncol border border-buttoncol  mt-4 mb-2 group-hover:border-orange-600 transition-colors duration-300"></div>
@@ -280,13 +295,13 @@ Social Networks
 
     <!-- 1st Service -->
     
-    <div class="flex flex-wrap mt-16 sm:gap-12 gap-4">
+    <div class="flex flex-wrap mt-16 sm:gap-12 gap-4 reveal">
     
     <div class="sm:ml-16 mt-4 ml-8 sm:mt-2">
     <i class="fa-solid fa-code sm:text-xl sm:py-4 sm:px-6 text-xl py-2 px-4 bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950  rounded-lg" style="color: #f7f7f7;"></i>
     </div>
     <div class="sm:mt-0 mt-3">
-    <p class="text-white font-rajdhani md:text-7xl sm:text-5xl text-xl">Web <br> Development<span class="sm:text-lg text-sm absolute ">[01]</span></p>
+    <p class="text-white font-rajdhani md:text-7xl lg:text-5xl xl:text-7xl sm:text-5xl text-xl">Web <br> Development<span class="sm:text-lg text-sm absolute ">[01]</span></p>
     <ul class="list-disc mt-12 sm:ml-4 -ml-16">
     <li class="text-white text-opacity-60 font-rajdhani mt-4 sm:text-lg text-sm">Responsive Design</li>
     <li class="text-white text-opacity-60 font-rajdhani mt-2 sm:text-lg text-sm">E-commerce Solutions</li>
@@ -297,36 +312,36 @@ Social Networks
 
     </div>
     <!-- 2nd Service -->
-    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
-    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">Web Deployment<span class="sm:text-lg text-sm absolute ">[02]</span></p>
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12 reveal">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl lg:text-5xl xl:text-7xl sm:text-5xl text-xl">Web Deployment<span class="sm:text-lg text-sm absolute ">[02]</span></p>
     </div>
     <!-- 3rd Service -->
-    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
-    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">Building Database<span class="sm:text-lg text-sm absolute ">[03]</span></p>
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12 reveal">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl lg:text-5xl xl:text-7xl sm:text-5xl text-xl">Building Database<span class="sm:text-lg text-sm absolute ">[03]</span></p>
     </div>
     <!-- 4th Service -->
-    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
-    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">Cloudnary Storage<span class="sm:text-lg text-sm absolute ">[04]</span></p>
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12 reveal">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl lg:text-5xl xl:text-7xl sm:text-5xl text-xl">Cloudnary Storage<span class="sm:text-lg text-sm absolute ">[04]</span></p>
     </div>
     <!-- 5th Service -->
-    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
-    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">CloudFlare R2<span class="sm:text-lg text-sm absolute ">[05]</span></p>
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12 reveal">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl lg:text-5xl xl:text-7xl sm:text-5xl text-xl">CloudFlare R2<span class="sm:text-lg text-sm absolute ">[05]</span></p>
     </div>
     <!-- 6th Service -->
-    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
-    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">Docker<span class="sm:text-lg text-sm absolute ">[06]</span></p>
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12 reveal">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl lg:text-5xl xl:text-7xl sm:text-5xl text-xl">Docker<span class="sm:text-lg text-sm absolute ">[06]</span></p>
     </div>
     <!-- 7th Service -->
-    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
-    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">WebSockets<span class="sm:text-lg text-sm absolute ">[07]</span></p>
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12 reveal">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl lg:text-5xl xl:text-7xl sm:text-5xl text-xl">WebSockets<span class="sm:text-lg text-sm absolute ">[07]</span></p>
     </div>
     <!-- 8th Service -->
-    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
-    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">Shopify<span class="sm:text-lg text-sm absolute ">[08]</span></p>
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12 reveal">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl lg:text-5xl xl:text-7xl sm:text-5xl text-xl">Shopify<span class="sm:text-lg text-sm absolute ">[08]</span></p>
     </div>
     <!-- 9th Service -->
-    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12">
-    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl sm:text-5xl text-xl">Ecom Funnels<span class="sm:text-lg text-sm absolute ">[09]</span></p>
+    <div class="sm:ml-16 mt-8 ml-8 sm:mt-12 reveal">
+    <p class="text-white text-opacity-60 font-rajdhani md:text-7xl lg:text-5xl xl:text-7xl sm:text-5xl text-xl">Ecom Funnels<span class="sm:text-lg text-sm absolute ">[09]</span></p>
     </div>
 
     <!-- Card Footer -->
@@ -336,7 +351,7 @@ Social Networks
     <span class="ml-2 font-rajdhani text-white text-opacity-60">Available to <span class="font-rajdhani text-white"> World-Wide </span> </span>
     </div>
     
-    <div id="Contact-BTN" class="Contact-BTN flex flex-wrap mr-16 group hover:cursor-pointer ">
+    <div class="Contact-BTN flex flex-wrap mr-16 group hover:cursor-pointer ">
     <span class="font-rajdhani mr-2 group-hover:text-orange-600 transition-colors duration-300 text-xl text-white">Contact Me</span>
     <i class="fa-solid fa-arrow-up-right-from-square fa-lg mt-3 text-white group-hover:text-orange-600 transition-colors duration-300"></i>
     </div>
@@ -350,7 +365,7 @@ Social Networks
   <div id="About-me" class="mt-16 w-[90%] max-w-[880px] mx-auto">
   <!-- Heading -->
   
-  <div class="flex flex-wrap custom:gap-40 gap-5">
+  <div class="flex flex-wrap gap-5 custom:gap-x-40 lg:gap-x-5 xl:gap-x-40 reveal">
   
   <div class="flex flex-wrap">
   <span class=" relative pl-4 text-xl text-white text-opacity-60 font-rajdhani before:content-[''] before:opacity-40 before:w-2 before:h-2 before:rounded-full before:bg-white before:absolute before:left-0 before:top-[12px] before:-translate-y-1/2">
@@ -366,10 +381,10 @@ Social Networks
 
   </div>
 
-  <div class="flex flex-wrap mt-10 custom:ml-64 ml-0">
-  <p class="text-white font-rajdhani text-opacity-60">Every website has a starting point, and for truly impactful digital experiences,<br/> it’s the vision that drives 
-  the development process. It’s the code, structure,<br/> and functionality working together to serve that vision. We believe that
-   understanding the purpose is paramount—because great development <br/> is more than just writing code; it’s crafting experiences that connect, engage, and inspire.</p>
+  <div class="flex flex-wrap mt-10 custom:ml-64 lg:ml-0 xl:ml-64 ml-0 reveal">
+  <p class="text-white font-rajdhani text-opacity-60">Every website has a starting point, and for truly impactful digital experiences,<br class="hidden custom:inline lg:hidden 2xl:inline"/> it’s the vision that drives 
+  the development process. It’s the code, structure,<br class="hidden custom:inline lg:hidden 2xl:inline"/> and functionality working together to serve that vision. We believe that
+   understanding the purpose is paramount—because great development <br class="hidden custom:inline lg:hidden 2xl:inline"/> is more than just writing code; it’s crafting experiences that connect, engage, and inspire.</p>
   </div>
 
   <!-- Tech Stact Section -->
@@ -383,69 +398,69 @@ Social Networks
   <div class="flex flex-wrap justify-between">
   <span class="text-white text-opacity-60 font-rajdhani text-xl mt-2 rounded-3xl border-[0.5px] px-4 py-2">Umer@Dev</span>
   <div class="buttonwrapper">
-  <button id="prevBtn" class="hover:text-orange-600  text-2xl  text-white px-3 py-2 rounded-full z-10">
+  <button id="prevBtn" type="button" aria-label="Previous technology" class="carousel-btn hover:text-orange-600 focus-visible:text-orange-600 text-2xl  text-white px-3 py-2 rounded-full z-10">
     &#10094;
   </button>
-  <button id="nextBtn" class="hover:text-orange-600  text-2xl  text-white px-3 py-2 rounded-full z-10">
+  <button id="nextBtn" type="button" aria-label="Next technology" class="carousel-btn hover:text-orange-600 focus-visible:text-orange-600 text-2xl  text-white px-3 py-2 rounded-full z-10">
     &#10095;
   </button>
   </div>
   </div>
 
   <!-- Viewport (clips to 3 cards) -->
-  <div class="overflow-hidden w-full max-w-full sm:max-w-2xl md:max-w-4xl mx-auto">
+  <div class="overflow-hidden w-full max-w-full sm:max-w-2xl md:max-w-4xl mx-auto touch-pan-y">
   <!-- Carousel wrapper -->
   <div id="carousel" class=" flex transition-transform duration-500 ease-in-out gap-2 md:gap-6 no-scrollbar">
   <!-- 1st HTML Card -->
-  <div class="bg-buttoncol flex-shrink-0 w-full sm:w-1/2 md:w-60 mt-10 rounded-2xl shadow-inner h-52  text-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="bg-buttoncol flex-shrink-0 w-full sm:w-[calc(50%-4px)] md:w-60 mt-10 rounded-2xl shadow-inner h-52 tech-card  text-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
   <span class="text-white font-rajdhani text-3xl font-semibold justify-center mt-8 block">HTML</span>
   <i class="fa-brands fa-html5 text-7xl mt-4" style="color: #045bf1;"></i>
   <span class="text-white font-rajdhani text-sm mt-2 block">Leading tool for web structure</span>
   </div>
   <!-- 2nd Tailwindcss Card -->
-  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-1/2 md:w-60 text-center justify-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-[calc(50%-4px)] md:w-60 text-center tech-card justify-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
   <span class="text-white font-rajdhani text-3xl font-semibold justify-center mt-8 block">Tailwind CSS</span>
   <img src="${tailcss}" alt="Tailwind CSS Logo" class="w-20 h-20 mx-auto mt-2">
   <span class="text-white font-rajdhani text-sm mt-2 block">Utility-first CSS framework</span>
   </div>
   <!-- 3rd JavaScript Card -->
-  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-1/2 md:w-60 text-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-[calc(50%-4px)] md:w-60 text-center tech-card" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
   <span class="text-white font-rajdhani text-3xl font-semibold justify-center mt-8 block">JavaScript</span>
   <i class="fa-brands fa-square-js text-7xl mt-4" style="color: #ecd904;"></i>
   <span class="text-white font-rajdhani text-sm mt-2 block">Leading web development language</span>
   </div>
   <!-- 4th React Card -->
-  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-1/2 md:w-60 text-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-[calc(50%-4px)] md:w-60 text-center tech-card" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
   <span class="text-white font-rajdhani text-3xl font-semibold justify-center mt-8 block">React.js</span>
   <i class="fa-brands fa-react text-7xl mt-4" style="color: #619bff;"></i>
   <span class="text-white font-rajdhani text-sm mt-2 block">Library for building user interfaces</span>
   </div>
   <!-- 5th Vite Card -->
-  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-1/2 md:w-60 text-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-[calc(50%-4px)] md:w-60 text-center tech-card" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
   <span class="text-white font-rajdhani text-3xl font-semibold justify-center mt-8 block">Vite.js</span>
   <img src="${vitelogo}" alt="Vite Logo" class="w-20 h-20 mx-auto mt-2">
   <span class="text-white font-rajdhani text-sm mt-2 block">Next Generation Frontend Tooling</span>
   </div>
   <!-- 6th MySQL Card -->
-  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-1/2 md:w-60 text-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-[calc(50%-4px)] md:w-60 text-center tech-card" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
   <span class="text-white font-rajdhani text-3xl font-semibold justify-center mt-8 block">MySQL</span>
   <i class="fa-solid fa-database text-7xl mt-4" style="color: #ffffff;"></i>
   <span class="text-white font-rajdhani text-sm mt-2 block">Relational database management</span>
   </div>
   <!-- 7th PHP Card -->
-  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-1/2 md:w-60 text-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-[calc(50%-4px)] md:w-60 text-center tech-card" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
   <span class="text-white font-rajdhani text-3xl font-semibold justify-center mt-8 block">PHP</span>
   <i class="fa-brands fa-php text-7xl mt-4" style="color: #B197FC;"></i>
   <span class="text-white font-rajdhani text-sm mt-2 block">Server-side scripting language</span>
   </div>
   <!-- 8th Laravel Card -->
-  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-1/2 md:w-60 text-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-[calc(50%-4px)] md:w-60 text-center tech-card" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
   <span class="text-white font-rajdhani text-3xl font-semibold justify-center mt-8 block">Laravel</span>
   <i class="fa-brands fa-laravel text-7xl mt-4" style="color: #ff2934;"></i>
   <span class="text-white font-rajdhani text-sm mt-2 block">PHP framework for web artisans</span>
   </div>
   <!-- 9th PostgreSQL Card -->
-  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-1/2 md:w-60 text-center" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner h-52 flex-shrink-0  w-full sm:w-[calc(50%-4px)] md:w-60 text-center tech-card" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
   <span class="text-white font-rajdhani text-3xl font-semibold justify-center mt-8 block">PostgreSQL</span>
   <i class="fa-solid fa-database text-7xl mt-4" style="color: #4169E1;"></i>
   <span class="text-white font-rajdhani text-sm mt-2 block">Advanced relational database</span>
@@ -471,23 +486,23 @@ Social Networks
     <span id="Work-process" class="font-rajdhani text-white text-7xl mt-10 font-medium">Work Process</span>
   </div>
   <!-- Carousel for Work Steps view-port -->
-  <div class="overflow-hidden w-full max-w-full sm:max-w-2xl md:max-w-4xl mx-auto">
+  <div id="work-process-viewport" class="overflow-hidden w-full max-w-full sm:max-w-2xl md:max-w-4xl mx-auto touch-pan-y reveal" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Work process steps (use arrow keys or swipe)">
 
   <!-- Carousel wrapper -->
 
   <div id="carousel-2" class=" flex transition-transform duration-700 ease-in-out gap-2 md:gap-6 no-scrollbar">
   
   <!-- 1st step Card -->
-  <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner sm:w-[590px] h-80 flex-shrink-0  w-full " style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
-  <div class="flex flex-wrap">
+  <div class="wp-card bg-buttoncol mt-10 rounded-2xl shadow-inner sm:w-[590px] min-h-80 pb-8 flex-shrink-0  w-full " style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="flex flex-wrap sm:flex-nowrap">
   
-  <div class="sm:mt-16 mt-10 text-center w-full sm:w-auto sm:text-left">
+  <div class="mt-10 sm:mt-16 text-center w-full sm:w-auto sm:text-left">
   <span class="relative text-white font-rajdhani text-sm  sm:ml-10 bg-black bg-opacity-50 px-6 py-2 rounded-3xl shadow-inner font-semibold before:content-[''] before:opacity-40 before:w-2 before:h-2 before:rounded-full before:bg-white before:absolute before:left-2 before:top-[16px] before:-translate-y-1/2" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">Step 1</span>
   <h1 class="text-white font-rajdhani text-2xl sm:text-4xl mt-12  sm:mt-16 sm:ml-10">Gather Requirements<br/> and Plan</h1>
   <span class="pl-6 sm:pl-0 text-left block text-white font-rajdhani text-sm mt-10 sm:mt-4 sm:ml-10">Create a requirements document<br/> and confirm with <br/> the client.</span>
  </div>
 
- <div class="sm:ml-16 sm:mt-16 sm:block hidden">
+ <div class="wp-icon shrink-0 sm:ml-16 sm:mt-16 sm:block hidden" aria-hidden="true">
  <i class="fa-solid fa-magnifying-glass hidden sm:block sm:text-6xl rounded-full sm:px-6 sm:py-6 sm:ml-10  bg-black " style="color: #e88f11;"></i>
  </div>
  
@@ -498,16 +513,16 @@ Social Networks
 
  <!-- 2nd step card Starts here -->
 
- <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner sm:w-[590px] h-80 flex-shrink-0  w-full  " style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
-  <div class="flex flex-wrap">
+ <div class="wp-card bg-buttoncol mt-10 rounded-2xl shadow-inner sm:w-[590px] min-h-80 pb-8 flex-shrink-0  w-full  " style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="flex flex-wrap sm:flex-nowrap">
   
-  <div class="mt-16 w-full sm:w-auto text-center sm:text-left">
+  <div class="mt-10 sm:mt-16 w-full sm:w-auto text-center sm:text-left">
   <span class="relative text-white font-rajdhani text-sm  sm:ml-10 bg-black bg-opacity-50 px-6 py-2 rounded-3xl shadow-inner font-semibold before:content-[''] before:opacity-40 before:w-2 before:h-2 before:rounded-full before:bg-white before:absolute before:left-2 before:top-[16px] before:-translate-y-1/2" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">Step 2</span>
   <h1 class="text-white font-rajdhani text-2xl sm:text-4xl mt-12 sm:mt-16 sm:ml-10">Set Up the Environment <br/> and Build the Front End</h1>
-  <span class="pl-6 sm:pl-0 block ml-2 text-left  text-white font-rajdhani text-sm mt-10 sm:mt-4 sm:ml-10">Ensure responsiveness and <br/> accessibility.</span>
+  <span class="pl-6 sm:pl-0 block text-left  text-white font-rajdhani text-sm mt-10 sm:mt-4 sm:ml-10">Ensure responsiveness and <br/> accessibility.</span>
  </div>
 
- <div class="ml-16 mt-16 hidden sm:block">
+ <div class="wp-icon shrink-0 ml-16 mt-16 hidden sm:block" aria-hidden="true">
  <i class="fa-solid fa-seedling hidden sm:block text-6xl rounded-full bg-black px-6 py-6" style="color: #d98a02;"></i>
  </div>
  
@@ -517,16 +532,16 @@ Social Networks
  <!-- 2nd card ends here -->
 
  <!-- 3rd step card Starts here -->
- <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner sm:w-[590px] h-80 flex-shrink-0  w-full  " style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
-  <div class="flex flex-wrap">
+ <div class="wp-card bg-buttoncol mt-10 rounded-2xl shadow-inner sm:w-[590px] min-h-80 pb-8 flex-shrink-0  w-full  " style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="flex flex-wrap sm:flex-nowrap">
   
-  <div class="mt-16 w-full sm:w-auto text-center sm:text-left">
+  <div class="mt-10 sm:mt-16 w-full sm:w-auto text-center sm:text-left">
   <span class="relative text-white font-rajdhani text-sm  sm:ml-10 bg-black bg-opacity-50 px-6 py-2 rounded-3xl shadow-inner font-semibold before:content-[''] before:opacity-40 before:w-2 before:h-2 before:rounded-full before:bg-white before:absolute before:left-2 before:top-[16px] before:-translate-y-1/2" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">Step 3</span>
   <h1 class="text-white font-rajdhani text-2xl mt-12 sm:text-4xl sm:mt-16 sm:ml-10">Develop the Back End <br/> and Database</h1>
   <span class="pl-6 sm:pl-0 text-left block text-white font-rajdhani text-sm mt-10 sm:mt-4 sm:ml-10">Create APIs for data flow<br/> between front end<br/> and back end.</span>
  </div>
 
- <div class="ml-16 mt-16 sm:block hidden">
+ <div class="wp-icon shrink-0 ml-16 mt-16 sm:block hidden" aria-hidden="true">
  <i class="fa-solid fa-server hidden sm:block ml-8 text-6xl rounded-full bg-black px-6 py-6" style="color: #d98a02;"></i>
  </div>
  
@@ -537,17 +552,17 @@ Social Networks
 
  <!-- 4th step card Starts here -->
  
- <div class="bg-buttoncol mt-10 rounded-2xl shadow-inner sm:w-[590px] h-80 flex-shrink-0  w-full  " style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
-  <div class="flex flex-wrap">
+ <div class="wp-card bg-buttoncol mt-10 rounded-2xl shadow-inner sm:w-[590px] min-h-80 pb-8 flex-shrink-0  w-full  " style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+  <div class="flex flex-wrap sm:flex-nowrap">
   
-  <div class="mt-16 w-full sm:w-auto text-center sm:text-left">
+  <div class="mt-10 sm:mt-16 w-full sm:w-auto text-center sm:text-left">
   <span class="relative text-white font-rajdhani text-sm  sm:ml-10 bg-black bg-opacity-50 px-6 py-2 rounded-3xl shadow-inner font-semibold before:content-[''] before:opacity-40 before:w-2 before:h-2 before:rounded-full before:bg-white before:absolute before:left-2 before:top-[16px] before:-translate-y-1/2" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">Step 4</span>
   <h1 class="text-white font-rajdhani text-2xl mt-12 sm:text-4xl sm:mt-16 sm:ml-10">Test, Deploy, and </br> Deliver</h1>
   <span class="text-left pl-6 sm:pl-0 block text-white font-rajdhani text-sm mt-10 sm:mt-6 sm:ml-10">Perform unit and <br/> integration testing; fix bugs.</span>
  </div>
 
- <div class="ml-16 mt-16">
- <i class="fa-solid fa-flask-vial ml-24 text-6xl rounded-full bg-black px-4 py-6" style="color: #d98a02;"></i>
+ <div class="wp-icon shrink-0 ml-16 mt-16 hidden sm:block" aria-hidden="true">
+ <i class="fa-solid fa-flask-vial hidden sm:block ml-24 text-6xl rounded-full bg-black px-4 py-6" style="color: #d98a02;"></i>
  </div>
  
  </div>
@@ -568,116 +583,37 @@ Social Networks
  <!-- My Projects Section -->
  <div id="My-Projects" class="mt-16 w-[90%] max-w-[880px] mx-auto">
   <!-- Heading -->
-  <div class="flex flex-wrap justify-between items-center">
+  <div class="flex flex-wrap justify-between items-center gap-y-4 reveal">
     <span class="font-rajdhani text-white text-5xl sm:text-7xl font-medium">My Projects</span>
     <div class="buttonwrapper flex gap-2">
-    <button id="projPrevBtn" class="hover:text-orange-600 text-2xl text-white px-3 py-2 rounded-full z-10 border border-white/20">
+    <button id="projPrevBtn" type="button" aria-label="Previous projects" aria-controls="projects-carousel" class="carousel-btn hover:text-orange-600 focus-visible:text-orange-600 hover:border-orange-600 focus-visible:border-orange-600 text-2xl text-white px-3 py-2 rounded-full z-10 border border-white/20">
       &#10094;
     </button>
-    <button id="projNextBtn" class="hover:text-orange-600 text-2xl text-white px-3 py-2 rounded-full z-10 border border-white/20">
+    <button id="projNextBtn" type="button" aria-label="Next projects" aria-controls="projects-carousel" class="carousel-btn hover:text-orange-600 focus-visible:text-orange-600 hover:border-orange-600 focus-visible:border-orange-600 text-2xl text-white px-3 py-2 rounded-full z-10 border border-white/20">
       &#10095;
     </button>
     </div>
   </div>
 
-  <!-- Projects Slider Viewport -->
-  <div class="overflow-hidden w-full mt-10">
-    <div id="projects-carousel" class="flex transition-transform duration-700 ease-in-out">
-
-      <!-- Slide 1 -->
-      <div class="w-full flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-1">
-
-        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
-          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
-            <i class="fa-solid fa-square-parking text-6xl" style="color:#f7f7f7;"></i>
+  <!-- Projects Slider Viewport: every card is its own flex item; JS sets how many fit per view -->
+  <div id="projects-viewport" class="overflow-hidden w-full mt-8 pt-2 pb-4 touch-pan-y" role="region" aria-roledescription="carousel" aria-label="Projects">
+    <div id="projects-carousel" class="projects-track flex">
+${projects.map((p, i) => `
+        <article class="project-card bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" aria-label="Project ${i + 1} of ${projects.length}: ${p.title}">
+          <div class="project-media h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center overflow-hidden">
+            <i class="fa-${p.brand ? 'brands' : 'solid'} ${p.icon} text-6xl" style="color:#f7f7f7;" aria-hidden="true"></i>
           </div>
           <div class="p-6 flex flex-col flex-1">
-            <span class="text-white font-rajdhani text-2xl font-semibold">ParkInn Management System</span>
-            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Reserve parking spots online, pay securely, and manage a fully digitized parking experience end-to-end.</p>
+            <h3 class="text-white font-rajdhani text-2xl font-semibold">${p.title}</h3>
+            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">${p.text}</p>
           </div>
-        </div>
-
-        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
-          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
-            <i class="fa-solid fa-spa text-6xl" style="color:#f7f7f7;"></i>
-          </div>
-          <div class="p-6 flex flex-col flex-1">
-            <span class="text-white font-rajdhani text-2xl font-semibold">Smooth Spine</span>
-            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Sales funnel and Shopify store built for a neck massager brand, driving conversions from ad to checkout.</p>
-          </div>
-        </div>
-
-        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
-          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
-            <i class="fa-solid fa-pump-soap text-6xl" style="color:#f7f7f7;"></i>
-          </div>
-          <div class="p-6 flex flex-col flex-1">
-            <span class="text-white font-rajdhani text-2xl font-semibold">Olavita</span>
-            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Sales funnel and Shopify store built for a skin care brand, focused on clean design and fast checkout.</p>
-          </div>
-        </div>
-
-      </div>
-      <!-- Slide 1 ends -->
-
-      <!-- Slide 2 -->
-      <div class="w-full flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-1">
-
-        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
-          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
-            <i class="fa-solid fa-flask text-6xl" style="color:#f7f7f7;"></i>
-          </div>
-          <div class="p-6 flex flex-col flex-1">
-            <span class="text-white font-rajdhani text-2xl font-semibold">Reverse Engineer</span>
-            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Sales funnel and Shopify store built for a skin care brand, engineered for high-intent traffic.</p>
-          </div>
-        </div>
-
-        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
-          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
-            <i class="fa-brands fa-bitcoin text-6xl" style="color:#f7f7f7;"></i>
-          </div>
-          <div class="p-6 flex flex-col flex-1">
-            <span class="text-white font-rajdhani text-2xl font-semibold">Crypto Profile</span>
-            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Personal crypto profile site built for Rehan Zaffar, showcasing portfolio and market presence.</p>
-          </div>
-        </div>
-
-        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
-          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
-            <i class="fa-solid fa-bag-shopping text-6xl" style="color:#f7f7f7;"></i>
-          </div>
-          <div class="p-6 flex flex-col flex-1">
-            <span class="text-white font-rajdhani text-2xl font-semibold">TryBello</span>
-            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Shopify store and sales funnel built to turn browsing visitors into first-time buyers.</p>
-          </div>
-        </div>
-
-      </div>
-      <!-- Slide 2 ends -->
-
-      <!-- Slide 3 -->
-      <div class="w-full flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-1">
-
-        <div class="bg-buttoncol rounded-2xl shadow-inner overflow-hidden flex flex-col" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
-          <div class="h-40 w-full bg-gradient-to-br from-orange-950 via-orange-600 to-orange-950 flex items-center justify-center">
-            <i class="fa-solid fa-shirt text-6xl" style="color:#f7f7f7;"></i>
-          </div>
-          <div class="p-6 flex flex-col flex-1">
-            <span class="text-white font-rajdhani text-2xl font-semibold">PurlStudios</span>
-            <p class="text-white text-opacity-60 font-rajdhani text-sm mt-3">Fully loaded apparel system built with live chat, order management, and a complete storefront.</p>
-          </div>
-        </div>
-
-      </div>
-      <!-- Slide 3 ends -->
-
+        </article>`).join('')}
     </div>
   </div>
   <!-- Projects Slider Viewport ends -->
 
   <!-- Dots -->
-  <div id="projDots" class="flex justify-center gap-2 mt-8"></div>
+  <div id="projDots" class="flex justify-center gap-2 mt-4" role="group" aria-label="Choose project slide"></div>
 
  </div>
  <!-- My Projects Section ends here -->
@@ -687,10 +623,10 @@ Social Networks
 
  <!-- Heading -->
  <div class="mt-4">
- <h1 class="font-rajdhani text-white text-7xl font-medium">My Pricing</h1>
+ <h1 class="font-rajdhani text-white text-7xl font-medium reveal">My Pricing</h1>
 
  <!-- Packages -->
- <div class="flex flex-wrap mt-8 px-4 py-4 gap-2 rounded-full bg-lightblack w-fit ">
+ <div class="flex flex-wrap mt-8 px-4 py-4 gap-2 rounded-full bg-lightblack w-fit reveal">
  <span class="text-xl bg-lightbg rounded-full px-4 py-2 font-rajdhani text-white">Standard Plan</span>
  </div>
 
@@ -699,7 +635,7 @@ Social Networks
 
  <!-- Broshure -->
 
- <div class="w-full h-[830px] sm:h-[680px] bg-lightblack mt-12 shadow-inner rounded-2xl px-6 pt-6" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+ <div class="w-full min-h-[830px] sm:min-h-[680px] bg-lightblack mt-12 shadow-inner rounded-2xl px-6 pt-6 pb-8 reveal" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
  <!-- Price Tag -->
  <div class="w-full bg-orange-600 h-[320px] rounded-2xl bg-[linear-gradient(to_top_left,#7F3820_30%,#232323_70%)]">
  <h1 class="relative text-white top-10 font-rajdhani text-2xl ml-10 sm:ml-12 before:content-[''] before:opacity-40 before:w-2 before:h-2 before:rounded-full before:bg-white before:absolute before:-left-4 before:top-[15px] before:-translate-y-1/2">Standard Plan</h1>
@@ -726,7 +662,7 @@ Social Networks
  </div>
  <!-- Pointers end here -->
  <!-- Footer -->
- <div id="Contact-BTN" class="Contact-BTN hover:cursor-pointer flex flex-wrap ml-2 group mt-14 h-14 pl-4 text-center items-center justify-center rounded-3xl bg-white w-fit gap-4 ">
+ <div class="Contact-BTN hover:cursor-pointer flex flex-wrap ml-2 group mt-14 h-14 pl-4 text-center items-center justify-center rounded-3xl bg-white w-fit gap-4 ">
     <span class="font-rajdhani group-hover:text-orange-600 transition-colors duration-300 text-lg text-black mt-0">Get Started</span>
     <div class="rounded-full mr-2 px-[12px] py-[10px] h-fit   bg-black">
     <i class="fa-solid fa-arrow-up-right-from-square fa-lg text-white group-hover:text-orange-600 transition-colors duration-300"></i>
@@ -737,9 +673,9 @@ Social Networks
  </div>
  <!-- Broshure ends here -->
  <!-- Quote Button -->
- <div class="Contact-BTN hover:cursor-pointer flex flex-wrap group w-full h-20 bg-lightblack mt-4 shadow-inner rounded-2xl pl-4 sm:pl-6 justify-between" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);" >
+ <div class="Contact-BTN reveal hover:cursor-pointer flex flex-wrap group w-full h-20 bg-lightblack mt-4 shadow-inner rounded-2xl pl-4 sm:pl-6 justify-between" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);" >
  <span class="font-rajdhani text-2xl sm:text-4xl text-white mt-6 group-hover:text-orange-600 transition-colors duration-300">Custom Quote</span>
- <div class="rounded-xl h-fit mt-2 px-6 py-4 bg-lightbg mr-2 border">
+ <div class="rounded-xl h-fit mt-2 px-6 py-4 bg-lightbg mr-2 border transition-colors duration-300 group-hover:border-orange-600 group-focus-visible:border-orange-600">
  <i class="fa-solid fa-arrow-up-right-from-square  text-2xl text-white group-hover:text-orange-600 transition-colors duration-300"></i>
  </div>
  </div>
@@ -751,46 +687,18 @@ Social Networks
 
 
 <!-- Footer Starts here -->
- <div id="Footer" class="flex items-center justify-center mt-16 py-8 px-12  h-[500px] mx-auto">
+ <div id="Footer" class="flex items-center justify-center mt-16 py-8 px-6 sm:px-12  h-[500px] mx-auto reveal">
 <!-- Footer Content -->
-<div id="Contact-BTN" class="Contact-BTN hover:cursor-pointer text-center mx-auto rounded-full py-4 px-2 sm:py-14 sm:px-2 w-full max-w-[600px] bg-lightbg bg-opacity-40">
+<div class="Contact-BTN book-call hover:cursor-pointer text-center mx-auto rounded-full py-4 px-2 sm:py-14 sm:px-2 w-full max-w-[600px] bg-lightbg bg-opacity-40" aria-label="Book a call">
 
-    <!-- First copy -->
-    <marquee behavior="scroll" direction="right" scrollamount="5" align="middle" class="w-full px-8 font-rajdhani text-white text-4xl sm:text-7xl font-medium">
-      <span class="inline-flex items-center gap-3">
-      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
-      Book A Call
-    </span>
-    <span class="inline-flex items-center gap-3">
-      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
-      Book A Call
-    </span>
-    <span class="inline-flex items-center gap-3">
-      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
-      Book A Call
-    </span>
-    <span class="inline-flex items-center gap-3">
-      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
-      Book A Call
-    </span>
-    <span class="inline-flex items-center gap-3">
-      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
-      Book A Call
-    </span>
-    <span class="inline-flex items-center gap-3">
-      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
-      Book A Call
-    </span>
-    <span class="inline-flex items-center gap-3">
-      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
-      Book A Call
-    </span>
-    <span class="inline-flex items-center gap-3">
-      <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white"></span>
-      Book A Call
-    </span>
-
-    </marquee>
+    <!-- Seamless marquee: two identical groups, the track moves exactly one group width per loop -->
+    <div class="marquee w-full px-8 font-rajdhani text-white text-4xl sm:text-7xl font-medium">
+      <span class="sr-only">Book A Call</span>
+      <div class="marquee__viewport">
+        <div class="marquee__track">${marqueeGroup(true)}${marqueeGroup(true)}
+        </div>
+      </div>
+    </div>
     
   
   </div>
@@ -809,7 +717,7 @@ Social Networks
 document.querySelector('#My-pricing').insertAdjacentHTML(
   "afterend",
   ` <!-- Contact form Starts here -->
- <div id="Contact-Form" class="mt-28 py-4 px-6 sm:py-8 sm:px-12 bg-lightblack w-[90%] rounded-2xl max-w-[880px] h-[1200px] sm:h-[1050px] mx-auto shadow-inner" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
+ <div id="Contact-Form" class="mt-28 py-4 px-6 sm:py-8 sm:px-12 bg-lightblack w-[90%] rounded-2xl max-w-[880px] min-h-[1200px] sm:min-h-[1050px] mx-auto shadow-inner reveal" style="box-shadow: inset 0 0 10px rgba(255, 255, 255,0.3);">
  <!-- Heading -->
  
  <div class="mt-8">
@@ -877,8 +785,7 @@ document.querySelector('#My-pricing').insertAdjacentHTML(
 
  </div>
  <!-- Contact form ends here -->
-
-</div>`);
+`);
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("#contactme");
@@ -937,588 +844,696 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+/* =========================================================================
+   Interaction layer
+   ========================================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
-    const sideBar = document.getElementById("SideBar");
-    const overlay = document.getElementById("Overlay");
-    const openBtn = document.getElementById("OpenBtn"); // ✅ Button, not <i>
-    const closeBtn = document.getElementById("CloseBtn");
-    const homeBtn = document.getElementById("HomeBtn");
-    const expBtn = document.getElementById("ExpBtn");
-    const servicesBtn = document.getElementById("ServicesBtn");
-    const aboutBtn = document.getElementById("AboutBtn");
-    const projectsBtn = document.getElementById("ProjectsBtn");
-    const priceBtn = document.getElementById("PriceBtn");
-    const contactBtn = document.getElementById("ContactBtn");
+const isReduced = () => prefersReducedMotion.matches
+const scrollToSection = (id) =>
+  document.getElementById(id)?.scrollIntoView({ behavior: isReduced() ? 'auto' : 'smooth', block: 'start' })
 
-    // Open sidebar
-    function openSidebar() {
-      sideBar.classList.remove("translate-x-full");
-      sideBar.classList.add("translate-x-0");
-      overlay.classList.remove("hidden");
-      openBtn.classList.add("hidden");
+// Let div/li "buttons" work with the keyboard too
+function makeKeyboardClickable(el) {
+  if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0')
+  if (!el.hasAttribute('role')) el.setAttribute('role', 'button')
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      el.click()
     }
+  })
+}
 
-    // Close sidebar
-    function closeSidebar() {
-      sideBar.classList.remove("translate-x-0");
-      sideBar.classList.add("translate-x-full");
-      overlay.classList.add("hidden");
-      openBtn.classList.remove("hidden");
-    }
+// Run a callback whenever an element enters/leaves the viewport
+function onVisibilityChange(el, cb, options = {}) {
+  const io = new IntersectionObserver(([entry]) => cb(entry.isIntersecting), options)
+  io.observe(el)
+  return io
+}
 
-    // Events
-    openBtn.addEventListener("click", openSidebar);
-    closeBtn.addEventListener("click", closeSidebar);
-    overlay.addEventListener("click", closeSidebar);
+// Horizontal swipe / drag for carousel viewports.
+// Vertical page scrolling stays native (viewports use touch-action: pan-y).
+function enableSwipe(el, { onStart, onMove, onEnd, threshold = 40 }) {
+  let startX = 0
+  let startY = 0
+  let dx = 0
+  let pointerId = null
+  let tracking = false
+  let dragging = false
 
-    // Home button click → scroll + close
-homeBtn.addEventListener("click", () => {
-  closeSidebar();
-  document.getElementById("intro").scrollIntoView({
-    behavior: "smooth"
-  });
-  });
+  el.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return
+    tracking = true
+    dragging = false
+    dx = 0
+    startX = e.clientX
+    startY = e.clientY
+    pointerId = e.pointerId
+  })
 
-  expBtn.addEventListener("click", () => {
-    closeSidebar();
-    document.getElementById("Experience").scrollIntoView({
-      behavior: "smooth"
-    });
-  });
-
-  servicesBtn.addEventListener("click", () => {
-    closeSidebar();
-    document.getElementById("Myservices").scrollIntoView({
-      behavior: "smooth"
-    });
-  });
-
-  aboutBtn.addEventListener("click", () => {
-    closeSidebar();
-    document.getElementById("About-me").scrollIntoView({
-      behavior: "smooth"
-    });
-  });
-
-  projectsBtn.addEventListener("click", () => {
-    closeSidebar();
-    document.getElementById("My-Projects").scrollIntoView({
-      behavior: "smooth"
-    });
-  });
-
-  priceBtn.addEventListener("click", () =>{
-    closeSidebar();
-    document.getElementById("My-pricing").scrollIntoView({
-      behavior: "smooth"
-    });
-  });
-
-  contactBtn.addEventListener("click", () => {
-    closeSidebar();
-    document.getElementById("Contact-Form").scrollIntoView({
-      behavior: 'smooth'
-    });
-  });
-
-
-  });
-
-  
-  document.addEventListener("DOMContentLoaded", () => {
-  const contactBtns = document.querySelectorAll(".Contact-BTN");
-
-  contactBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.getElementById("Contact-Form").scrollIntoView({
-        behavior: "smooth"
-      });
-    });
-  });
-});
-
-
-  document.addEventListener("DOMContentLoaded", () => {
-  const counters = document.querySelectorAll(".counter");
-
-  const animateCounter = (counter, speed = 2000) => { // speed in ms
-    const target = +counter.getAttribute("data-target");
-    let current = 0;
-    const increment = target / (speed / 32); // 16ms ≈ 1 frame at 60fps
-
-    const update = () => {
-      current += increment;
-      if (current >= target) {
-        counter.textContent = target;
-      } else {
-        counter.textContent = Math.floor(current);
-        requestAnimationFrame(update);
+  el.addEventListener('pointermove', (e) => {
+    if (!tracking || e.pointerId !== pointerId) return
+    const mx = e.clientX - startX
+    const my = e.clientY - startY
+    if (!dragging) {
+      if (Math.abs(mx) < 8 && Math.abs(my) < 8) return
+      if (Math.abs(my) > Math.abs(mx)) {
+        tracking = false // vertical gesture: let the page scroll
+        return
       }
-    };
+      dragging = true
+      try { el.setPointerCapture(pointerId) } catch { /* pointer already released */ }
+      onStart?.()
+    }
+    dx = mx
+    onMove?.(dx)
+  })
 
-    update();
-  };
+  const finish = (e) => {
+    if (!tracking || e.pointerId !== pointerId) return
+    tracking = false
+    if (!dragging) return
+    dragging = false
+    onEnd?.(Math.abs(dx) > threshold ? (dx < 0 ? 1 : -1) : 0)
+  }
+  el.addEventListener('pointerup', finish)
+  el.addEventListener('pointercancel', finish)
+  el.addEventListener('dragstart', (e) => e.preventDefault())
+}
 
-  counters.forEach(counter => animateCounter(counter, 4000)); // 4 seconds slow
-});
+/* ---------- Side menu ---------- */
+function initSideMenu() {
+  const sideBar = document.getElementById('SideBar')
+  const overlay = document.getElementById('Overlay')
+  const openBtn = document.getElementById('OpenBtn')
+  const closeBtn = document.getElementById('CloseBtn')
+  if (!sideBar || !overlay || !openBtn || !closeBtn) return
 
-  document.addEventListener("DOMContentLoaded", () => {
-  const elements = document.querySelectorAll("[data-animate]");
+  let hideOverlayTimer
+  const isOpen = () => sideBar.classList.contains('translate-x-0')
 
+  function openSidebar() {
+    clearTimeout(hideOverlayTimer)
+    sideBar.classList.remove('translate-x-full')
+    sideBar.classList.add('translate-x-0')
+    sideBar.removeAttribute('inert')
+    sideBar.setAttribute('aria-hidden', 'false')
+    overlay.classList.remove('hidden')
+    requestAnimationFrame(() => overlay.classList.remove('opacity-0'))
+    openBtn.classList.add('hidden')
+    openBtn.setAttribute('aria-expanded', 'true')
+    closeBtn.focus({ preventScroll: true })
+  }
+
+  function closeSidebar({ restoreFocus = false } = {}) {
+    sideBar.classList.remove('translate-x-0')
+    sideBar.classList.add('translate-x-full')
+    sideBar.setAttribute('inert', '')
+    sideBar.setAttribute('aria-hidden', 'true')
+    overlay.classList.add('opacity-0')
+    hideOverlayTimer = setTimeout(() => overlay.classList.add('hidden'), isReduced() ? 0 : 500)
+    openBtn.classList.remove('hidden')
+    openBtn.setAttribute('aria-expanded', 'false')
+    if (restoreFocus) openBtn.focus({ preventScroll: true })
+  }
+
+  openBtn.addEventListener('click', openSidebar)
+  closeBtn.addEventListener('click', () => closeSidebar({ restoreFocus: true }))
+  overlay.addEventListener('click', () => closeSidebar())
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen()) closeSidebar({ restoreFocus: true })
+  })
+
+  const targets = {
+    HomeBtn: 'intro',
+    ExpBtn: 'Experience',
+    ServicesBtn: 'Myservices',
+    AboutBtn: 'About-me',
+    ProjectsBtn: 'My-Projects',
+    PriceBtn: 'My-pricing',
+    ContactBtn: 'Contact-Form',
+  }
+  Object.entries(targets).forEach(([btnId, sectionId]) => {
+    const btn = document.getElementById(btnId)
+    if (!btn) return
+    makeKeyboardClickable(btn)
+    btn.addEventListener('click', () => {
+      closeSidebar()
+      scrollToSection(sectionId)
+    })
+  })
+}
+
+/* ---------- "Contact me" style buttons ---------- */
+function initContactButtons() {
+  document.querySelectorAll('.Contact-BTN').forEach((btn) => {
+    makeKeyboardClickable(btn)
+    btn.addEventListener('click', () => scrollToSection('Contact-Form'))
+  })
+}
+
+/* ---------- Stat counters (start when visible) ---------- */
+function initCounters() {
+  document.querySelectorAll('.counter').forEach((counter) => {
+    const target = Number(counter.dataset.target) || 0
+    if (isReduced()) {
+      counter.textContent = target
+      return
+    }
+    const io = onVisibilityChange(counter, (visible) => {
+      if (!visible) return
+      io.disconnect()
+      const duration = 2000
+      const start = performance.now()
+      const tick = (now) => {
+        const t = Math.min(1, (now - start) / duration)
+        const eased = 1 - Math.pow(1 - t, 3)
+        counter.textContent = Math.round(target * eased)
+        if (t < 1) requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
+    }, { threshold: 0.4 })
+  })
+}
+
+/* ---------- Existing entrance animations (data-animate) ---------- */
+function initDataAnimate() {
+  const elements = document.querySelectorAll('[data-animate]')
+  if (isReduced()) {
+    elements.forEach((el) => el.classList.remove('opacity-0'))
+    return
+  }
   const observer = new IntersectionObserver((entries, obs) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const anim = entry.target.getAttribute("data-animate");
-        entry.target.classList.remove("opacity-0"); // make visible
-        entry.target.classList.add("animate-" + anim);
-        obs.unobserve(entry.target); // animate once
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return
+      entry.target.classList.remove('opacity-0')
+      entry.target.classList.add('animate-' + entry.target.dataset.animate)
+      obs.unobserve(entry.target) // animate once
+    })
+  }, { threshold: 0.2 })
+  elements.forEach((el) => observer.observe(el))
+}
+
+/* ---------- Section reveal (animates once, so no flicker when scrolling back) ---------- */
+function initReveal() {
+  const items = document.querySelectorAll('.reveal, .reveal-stagger')
+  if (!document.documentElement.classList.contains('reveal-ready')) {
+    items.forEach((el) => el.classList.add('is-visible'))
+    return
+  }
+  const io = new IntersectionObserver((entries) => {
+    let batch = 0
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return
+      const el = entry.target
+      // small stagger for items that enter together
+      if (el.classList.contains('reveal')) {
+        el.style.transitionDelay = `${Math.min(batch, 5) * 80}ms`
+        setTimeout(() => { el.style.transitionDelay = '' }, 1200)
+        batch++
       }
-    });
-  }, { threshold: 0.2 });
+      el.classList.add('is-visible')
+      io.unobserve(el)
+    })
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.1 })
+  items.forEach((el) => io.observe(el))
+}
 
-  elements.forEach(el => observer.observe(el));
-});
+/* ---------- Letter-by-letter headings ("Tech Stack", "Work Process") ---------- */
+function initLetterHeading(id, sizeClass) {
+  const heading = document.getElementById(id)
+  if (!heading) return
+  const text = heading.textContent
+  heading.textContent = ''
 
+  const label = document.createElement('span')
+  label.className = 'sr-only'
+  label.textContent = text
+  heading.appendChild(label)
 
+  const letters = [...text].map((char) => {
+    const span = document.createElement('span')
+    span.className = `letter font-rajdhani text-white ${sizeClass} opacity-0`
+    span.setAttribute('aria-hidden', 'true')
+    span.textContent = char
+    heading.appendChild(span)
+    return span
+  })
 
-  
-
-  
-
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  const carousell = document.getElementById("carousel-2");
-  if (!carousell) return;
-
-  const autoplayDelay = 3000;
-  const transitionMs = 1000;
-
-  const originals = Array.from(carousell.children);
-  if (originals.length === 0) return;
-
-  // Clone first & last cards for infinite loop effect
-  const firstClone = originals[0].cloneNode(true);
-  const lastClone = originals[originals.length - 1].cloneNode(true);
-  carousell.insertBefore(lastClone, originals[0]);
-  carousell.appendChild(firstClone);
-
-  const allCards = Array.from(carousell.children);
-
-  let cardWidth;
-  let step;
-  let index = 1;
-  let autoplayId;
-
-  // ✅ Get actual CSS flex gap
-  function getFlexGap() {
-    return parseInt(getComputedStyle(carousell).columnGap || 0, 10);
+  if (isReduced()) {
+    letters.forEach((l) => l.classList.replace('opacity-0', 'opacity-100'))
+    return
   }
+  const io = onVisibilityChange(heading, (visible) => {
+    if (!visible) return
+    io.disconnect() // once: avoids re-triggering/flicker on scroll up & down
+    letters.forEach((letter, i) => {
+      setTimeout(() => letter.classList.replace('opacity-0', 'opacity-100'), i * 50)
+    })
+  }, { threshold: 0.1 })
+}
 
-  // ✅ Calculate card width
-  function getCardWidth() {
-    const containerWidth = carousell.parentElement.offsetWidth;
-    if (window.innerWidth < 640) {
-      return containerWidth; // full width on mobile
+/* ---------- Experience heading: letters brighten as it nears the viewport centre ---------- */
+function initScrollHeading() {
+  const heading = document.getElementById('scroll-heading')
+  if (!heading) return
+
+  const letters = []
+  // Wrap words (kept together) and their letters, so words never break mid-word on small screens
+  const wrap = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const frag = document.createDocumentFragment()
+      node.nodeValue.split(/(\s+)/).forEach((part) => {
+        if (!part) return
+        if (/^\s+$/.test(part)) {
+          frag.appendChild(document.createTextNode(part))
+          return
+        }
+        const word = document.createElement('span')
+        word.className = 'scroll-word'
+        for (const ch of part) {
+          const span = document.createElement('span')
+          span.className = 'scroll-letter text-white'
+          span.textContent = ch
+          word.appendChild(span)
+          letters.push(span)
+        }
+        frag.appendChild(word)
+      })
+      node.replaceWith(frag)
+    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'BR') {
+      Array.from(node.childNodes).forEach(wrap)
     }
-    return Math.min(containerWidth, 590); // cap on desktop
   }
+  Array.from(heading.childNodes).forEach(wrap)
 
-  function applyCardWidths() {
-    const containerWidth = carousell.parentElement.offsetWidth;
-    const cssGap = getFlexGap();
-    const isMobile = window.innerWidth < 640;
-
-    if (isMobile) {
-      // ✅ On mobile: card fills container - but gap still exists in flex
-      cardWidth = containerWidth - cssGap;
-      step = containerWidth; // slide exactly 1 full viewport width
-    } else {
-      cardWidth = getCardWidth();
-      step = cardWidth + cssGap;
-    }
-
-    allCards.forEach((card) => {
-      card.style.flex = `0 0 ${cardWidth}px`;
-      card.style.width = `${cardWidth}px`;
-    });
-
-    updatePosition(false);
-  }
-
-  function updatePosition(withTransition = true) {
-    carousell.style.transition = withTransition
-      ? `transform ${transitionMs}ms ease-in-out`
-      : "none";
-    carousell.style.transform = `translateX(-${step * index}px)`;
-  }
-
-  function goToNext() {
-    index++;
-    updatePosition(true);
-  }
-
- carousell.addEventListener("transitionend", () => {
-  const total = allCards.length;
-
-  if (index >= total - 1) {
-    // Went past the lastClone
-    index = 1;
-    updatePosition(false);
-  }
-
-  if (index <= 0) {
-    // Went before the lastClone
-    index = total - 2;
-    updatePosition(false);
-  }
-});
-
-  function startAutoplay() {
-    stopAutoplay();
-    autoplayId = setInterval(goToNext, autoplayDelay);
-  }
-
-  function stopAutoplay() {
-    clearInterval(autoplayId);
-    autoplayId = null;
-  }
-
-  carousell.addEventListener("mouseenter", stopAutoplay);
-  carousell.addEventListener("mouseleave", startAutoplay);
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      stopAutoplay();
-    } else {
-      updatePosition(false);
-      startAutoplay();
-    }
-  });
-
-  window.addEventListener("resize", applyCardWidths);
-
-  // Init
-  applyCardWidths();
-  startAutoplay();
-});
-
-
-// ✅ My Projects slider (3 cards per slide, dots + prev/next, autoplay)
-document.addEventListener("DOMContentLoaded", () => {
-  const projCarousel = document.getElementById("projects-carousel");
-  if (!projCarousel) return;
-
-  const slides = Array.from(projCarousel.children);
-  const dotsWrap = document.getElementById("projDots");
-  const prevBtn = document.getElementById("projPrevBtn");
-  const nextBtn = document.getElementById("projNextBtn");
-  const autoplayDelay = 4000;
-
-  let index = 0;
-  let autoplayId;
-
-  // Build dots
-  slides.forEach((_, i) => {
-    const dot = document.createElement("span");
-    dot.className = "w-2.5 h-2.5 rounded-full cursor-pointer transition-colors duration-300 " +
-      (i === 0 ? "bg-orange-600" : "bg-white bg-opacity-30");
-    dot.addEventListener("click", () => {
-      index = i;
-      update();
-      restartAutoplay();
-    });
-    dotsWrap.appendChild(dot);
-  });
-
-  const dots = Array.from(dotsWrap.children);
+  let lastScrollY = window.scrollY
+  let ticking = false
+  let active = false
 
   function update() {
-    projCarousel.style.transform = `translateX(-${index * 100}%)`;
-    dots.forEach((d, i) => {
-      d.className = "w-2.5 h-2.5 rounded-full cursor-pointer transition-colors duration-300 " +
-        (i === index ? "bg-orange-600" : "bg-white bg-opacity-30");
-    });
-  }
-
-  function goNext() {
-    index = (index + 1) % slides.length;
-    update();
-  }
-
-  function goPrev() {
-    index = (index - 1 + slides.length) % slides.length;
-    update();
-  }
-
-  function startAutoplay() {
-    stopAutoplay();
-    autoplayId = setInterval(goNext, autoplayDelay);
-  }
-
-  function stopAutoplay() {
-    clearInterval(autoplayId);
-    autoplayId = null;
-  }
-
-  function restartAutoplay() {
-    startAutoplay();
-  }
-
-  nextBtn.addEventListener("click", () => {
-    goNext();
-    restartAutoplay();
-  });
-
-  prevBtn.addEventListener("click", () => {
-    goPrev();
-    restartAutoplay();
-  });
-
-  projCarousel.parentElement.addEventListener("mouseenter", stopAutoplay);
-  projCarousel.parentElement.addEventListener("mouseleave", startAutoplay);
-
-  update();
-  startAutoplay();
-});
-
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  const techStack = document.getElementById('tech-stack');
-  if (!techStack) return;
-
-  // Split text into letters
-  const text = techStack.textContent;
-  techStack.innerHTML = '';
-  
-  text.split('').forEach(char => {
-    const span = document.createElement('span');
-    span.className = 'letter font-rajdhani text-white text-5xl opacity-0';
-    span.textContent = char;
-    techStack.appendChild(span);
-  });
-
-  // Animation observer
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const letters = entry.target.querySelectorAll('.letter');
-      
-      if (entry.isIntersecting) {
-        // When scrolling into view
-        letters.forEach((letter, index) => {
-          // First reset the animation
-          letter.classList.remove('animate-fade-in', 'opacity-100');
-          
-          // Force reflow to reset animation
-          void letter.offsetWidth;
-          
-          // Then start animation with delay
-          setTimeout(() => {
-            letter.classList.add('animate-fade-in', 'opacity-100');
-          }, index * 50);
-        });
-      } else {
-        // When scrolling out of view - reset letters
-        letters.forEach(letter => {
-          letter.classList.remove('animate-fade-in', 'opacity-100');
-        });
-      }
-    });
-  }, { threshold: 0.1 });
-
-  observer.observe(techStack);
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  const workprocess = document.getElementById('Work-process');
-  if (!workprocess) return;
-
-  // Split text into letters
-  const text = workprocess.textContent;
-  workprocess.innerHTML = '';
-  
-  text.split('').forEach(char => {
-    const span = document.createElement('span');
-    span.className = 'letter font-rajdhani text-white text-7xl opacity-0';
-    span.textContent = char;
-    workprocess.appendChild(span);
-  });
-
-  // Animation observer
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const letters = entry.target.querySelectorAll('.letter');
-      
-      if (entry.isIntersecting) {
-        // When scrolling into view
-        letters.forEach((letter, index) => {
-          // First reset the animation
-          letter.classList.remove('animate-fade-in', 'opacity-100');
-          
-          // Force reflow to reset animation
-          void letter.offsetWidth;
-          
-          // Then start animation with delay
-          setTimeout(() => {
-            letter.classList.add('animate-fade-in', 'opacity-100');
-          }, index * 50);
-        });
-      } else {
-        // When scrolling out of view - reset letters
-        letters.forEach(letter => {
-          letter.classList.remove('animate-fade-in', 'opacity-100');
-        });
-      }
-    });
-  }, { threshold: 0.1 });
-
-  observer.observe(workprocess);
-});
-
-requestAnimationFrame(() => {
-  const heading = document.getElementById('scroll-heading');
-  if (!heading) return;
-
-  // Wrap every character in spans
-  function wrapLettersInNode(node) {
-    if (node.nodeType === Node.TEXT_NODE && /\S/.test(node.nodeValue)) {
-      const frag = document.createDocumentFragment();
-      for (const ch of node.nodeValue) {
-        const span = document.createElement('span');
-        span.className = 'text-white'; // purge-safe
-        span.style.display = 'inline-block';
-        span.style.opacity = '0.6';
-        span.style.transition = 'opacity 400ms ease-out';
-        span.textContent = ch === ' ' ? '\u00A0' : ch;
-        frag.appendChild(span);
-      }
-      node.replaceWith(frag);
-    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'BR') {
-      Array.from(node.childNodes).forEach(wrapLettersInNode);
-    }
-  }
-
-  Array.from(heading.childNodes).forEach(wrapLettersInNode);
-
-  const letters = Array.from(heading.querySelectorAll('span'));
-  let lastScrollY = window.scrollY;
-
-  function updateLettersOnScroll() {
-    const rect = heading.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-
-    const centerY = rect.top + rect.height / 2;
-    const distanceFromCenter = Math.abs(centerY - viewportHeight / 2);
-
-    // Wider sweet spot
-    const tolerance = viewportHeight * 0.2;
-
-    let progress;
-    if (distanceFromCenter < tolerance) {
-      progress = 1;
-    } else {
-      progress = 1 - (distanceFromCenter - tolerance) / (viewportHeight / 2 - tolerance);
-    }
-
-    const clamped = Math.max(0, Math.min(1, progress));
-
-    const scrollingDown = window.scrollY > lastScrollY;
-    lastScrollY = window.scrollY;
+    ticking = false
+    const rect = heading.getBoundingClientRect()
+    const vh = window.innerHeight
+    const distance = Math.abs(rect.top + rect.height / 2 - vh / 2)
+    const tolerance = vh * 0.2
+    const progress = distance < tolerance ? 1 : 1 - (distance - tolerance) / (vh / 2 - tolerance)
+    const clamped = Math.max(0, Math.min(1, progress))
+    const scrollingDown = window.scrollY > lastScrollY
+    lastScrollY = window.scrollY
 
     letters.forEach((letter, i) => {
-      // Normalize index depending on scroll direction
-      const index = scrollingDown ? i : letters.length - 1 - i;
-
-      // Each letter gets its own "activation threshold"
-      const threshold = index / letters.length;
-
-      // Compare global progress to letter threshold
-      const intensity = Math.min(1, Math.max(0, (clamped - threshold) * letters.length * 0.6));
-      // ↑ multiplier (0.6 here) controls how gradually letters fade in/out
-
-      letter.style.opacity = (0.6 + 0.4 * intensity).toString();
-    });
+      const index = scrollingDown ? i : letters.length - 1 - i
+      const threshold = index / letters.length
+      const intensity = Math.min(1, Math.max(0, (clamped - threshold) * letters.length * 0.6))
+      letter.style.opacity = (0.6 + 0.4 * intensity).toFixed(3)
+    })
   }
 
-  window.addEventListener('scroll', updateLettersOnScroll);
-  window.addEventListener('resize', updateLettersOnScroll);
+  const requestUpdate = () => {
+    if (!active || ticking) return
+    ticking = true
+    requestAnimationFrame(update)
+  }
 
-  updateLettersOnScroll();
-});
-
- const carousel = document.getElementById("carousel");
-const nextBtn = document.getElementById("nextBtn");
-const prevBtn = document.getElementById("prevBtn");
-
-let currentIndex = 0;
-let autoScroll;
-
-// --- helpers ---
-function getCardWidth() {
-  const firstCard = carousel.children[0];
-  return firstCard.offsetWidth + parseInt(getComputedStyle(carousel).gap || 0);
-}
-
-function getVisibleCards() {
-  if (window.innerWidth < 640) return 1;   // mobile
-  if (window.innerWidth < 1024) return 2;  // tablet
-  return 3;                                // desktop
-}
-
-function updateCarousel() {
-  const cardWidth = getCardWidth();
-  carousel.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-}
-
-function getMaxIndex() {
-  return carousel.children.length - getVisibleCards();
-}
-
-// --- auto scroll logic ---
-function startAutoScroll() {
-  clearInterval(autoScroll);
-  autoScroll = setInterval(() => {
-    if (currentIndex < getMaxIndex()) {
-      currentIndex++;
+  // Only listen while the heading is on screen
+  onVisibilityChange(heading, (visible) => {
+    active = visible
+    if (visible) {
+      window.addEventListener('scroll', requestUpdate, { passive: true })
+      requestUpdate()
     } else {
-      currentIndex = 0;
+      window.removeEventListener('scroll', requestUpdate)
     }
-    updateCarousel();
-  }, 2000);
+  })
+  window.addEventListener('resize', requestUpdate, { passive: true })
 }
 
-// --- button handlers ---
-nextBtn.addEventListener("click", () => {
-  if (currentIndex < getMaxIndex()) {
-    currentIndex++;
-    updateCarousel();
+/* ---------- Tech Stack carousel ---------- */
+function initTechStack() {
+  const track = document.getElementById('carousel')
+  const nextBtn = document.getElementById('nextBtn')
+  const prevBtn = document.getElementById('prevBtn')
+  if (!track || !nextBtn || !prevBtn) return
+  const viewport = track.parentElement
+  const cards = Array.from(track.children)
+  track.classList.add('reveal-stagger')
+  cards.forEach((card, i) => card.style.setProperty('--stagger', `${Math.min(i, 4) * 80}ms`))
+
+  let index = 0
+  let timer = null
+  let inView = false
+  let hovering = false
+  let dragging = false
+
+  function metrics() {
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0
+    const step = cards[0].offsetWidth + gap
+    const max = Math.max(0, track.scrollWidth - viewport.clientWidth)
+    return { step, max, maxIndex: step ? Math.ceil(max / step - 0.01) : 0 }
   }
-  startAutoScroll(); // reset timer
-});
 
-prevBtn.addEventListener("click", () => {
-  if (currentIndex > 0) {
-    currentIndex--;
-    updateCarousel();
+  function render(animate = true, offset = 0) {
+    const { step, max, maxIndex } = metrics()
+    index = Math.max(0, Math.min(index, maxIndex))
+    const x = Math.min(index * step, max) // last position lines the final card up with the edge
+    track.style.transition = animate && !isReduced() ? '' : 'none'
+    track.style.transform = `translate3d(${-x + offset}px, 0, 0)`
   }
-  startAutoScroll(); // reset timer
-});
 
-// Pause on hover
-carousel.parentElement.addEventListener("mouseenter", () => clearInterval(autoScroll));
-carousel.parentElement.addEventListener("mouseleave", startAutoScroll);
+  function updateAutoplay() {
+    const run = inView && !hovering && !dragging && !document.hidden && !isReduced()
+    if (run && !timer) {
+      timer = setInterval(() => {
+        index = index < metrics().maxIndex ? index + 1 : 0
+        render()
+      }, 2000)
+    } else if (!run && timer) {
+      clearInterval(timer)
+      timer = null
+    }
+  }
+  const restartAutoplay = () => {
+    clearInterval(timer)
+    timer = null
+    updateAutoplay()
+  }
 
-// Recalculate on resize
-window.addEventListener("resize", () => {
-  currentIndex = 0;
-  updateCarousel();
-});
+  nextBtn.addEventListener('click', () => {
+    if (index < metrics().maxIndex) index++
+    render()
+    restartAutoplay()
+  })
+  prevBtn.addEventListener('click', () => {
+    if (index > 0) index--
+    render()
+    restartAutoplay()
+  })
 
-// Initial setup
-updateCarousel();
-startAutoScroll();
+  enableSwipe(viewport, {
+    onStart: () => { dragging = true; updateAutoplay(); render(false) },
+    onMove: (dx) => render(false, dx),
+    onEnd: (dir) => {
+      dragging = false
+      index += dir
+      render()
+      updateAutoplay()
+    },
+  })
 
-setupCounter(document.querySelector('#counter'))
+  viewport.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { hovering = true; updateAutoplay() } })
+  viewport.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { hovering = false; updateAutoplay() } })
+  onVisibilityChange(viewport, (v) => { inView = v; updateAutoplay() })
+  document.addEventListener('visibilitychange', updateAutoplay)
+
+  let raf
+  new ResizeObserver(() => {
+    cancelAnimationFrame(raf)
+    raf = requestAnimationFrame(() => render(false))
+  }).observe(viewport)
+
+  render(false)
+}
+
+/* ---------- Work Process carousel (infinite loop) ---------- */
+function initWorkProcess() {
+  const track = document.getElementById('carousel-2')
+  const viewport = document.getElementById('work-process-viewport')
+  if (!track || !viewport) return
+
+  const autoplayDelay = 3000
+  const transitionMs = 1000
+  const originals = Array.from(track.children)
+  const n = originals.length
+  if (!n) return
+
+  // A full set of clones on BOTH sides: on wider screens the next card peeks in,
+  // so a single clone left an empty gap on the right at the loop point.
+  const makeClone = (card) => {
+    const clone = card.cloneNode(true)
+    clone.classList.add('is-clone')
+    clone.setAttribute('aria-hidden', 'true')
+    clone.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'))
+    return clone
+  }
+  track.prepend(...originals.map(makeClone))
+  track.append(...originals.map(makeClone))
+  const cards = Array.from(track.children)
+
+  let index = n // first real card
+  let step = 0
+  let timer = null
+  let fallback = null
+  let inView = false
+  let hovering = false
+  let focused = false
+  let dragging = false
+
+  function measure() {
+    const containerWidth = viewport.clientWidth
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0
+    let cardWidth
+    if (window.innerWidth < 640) {
+      cardWidth = containerWidth - gap // one card per view on mobile
+      step = containerWidth
+    } else {
+      cardWidth = Math.min(containerWidth, 590)
+      step = cardWidth + gap
+    }
+    cards.forEach((card) => {
+      card.style.flex = `0 0 ${cardWidth}px`
+      card.style.width = `${cardWidth}px`
+    })
+    setPosition(false)
+  }
+
+  // Jump (invisibly) from a clone back to the matching real card
+  function normalize() {
+    clearTimeout(fallback)
+    if (index >= 2 * n) index -= n
+    else if (index < n) index += n
+    else return
+    setPosition(false)
+  }
+
+  function setPosition(animate, offset = 0) {
+    const useTransition = animate && !isReduced()
+    track.style.transition = useTransition ? `transform ${transitionMs}ms ease-in-out` : 'none'
+    track.style.transform = `translate3d(${-(index * step) + offset}px, 0, 0)`
+    if (useTransition) {
+      clearTimeout(fallback)
+      // transitionend can be skipped (e.g. background tab) — never get stuck on a clone
+      fallback = setTimeout(normalize, transitionMs + 100)
+    }
+  }
+
+  function go(delta) {
+    index += delta
+    if (index < 0 || index >= 3 * n) {
+      index = (((index - n) % n) + n) % n + n
+      setPosition(false)
+      return
+    }
+    setPosition(true)
+    if (isReduced()) normalize()
+  }
+
+  track.addEventListener('transitionend', (e) => {
+    if (e.target === track && e.propertyName === 'transform') normalize()
+  })
+
+  function updateAutoplay() {
+    const run = inView && !hovering && !focused && !dragging && !document.hidden && !isReduced()
+    if (run && !timer) timer = setInterval(() => go(1), autoplayDelay)
+    else if (!run && timer) {
+      clearInterval(timer)
+      timer = null
+    }
+  }
+  const restartAutoplay = () => {
+    clearInterval(timer)
+    timer = null
+    updateAutoplay()
+  }
+
+  // Mouse hover pauses autoplay; touch taps no longer stop it permanently
+  viewport.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { hovering = true; updateAutoplay() } })
+  viewport.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { hovering = false; updateAutoplay() } })
+  // pause only for keyboard focus (a tap also focuses the region but shouldn't stop autoplay)
+  viewport.addEventListener('focusin', () => { focused = viewport.matches(':focus-visible'); updateAutoplay() })
+  viewport.addEventListener('focusout', () => { focused = false; updateAutoplay() })
+  viewport.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(1); restartAutoplay() }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); restartAutoplay() }
+  })
+
+  enableSwipe(viewport, {
+    onStart: () => { dragging = true; updateAutoplay(); normalize(); setPosition(false) },
+    onMove: (dx) => setPosition(false, dx),
+    onEnd: (dir) => {
+      dragging = false
+      if (dir) go(dir)
+      else setPosition(true)
+      updateAutoplay()
+    },
+  })
+
+  onVisibilityChange(viewport, (v) => { inView = v; updateAutoplay() })
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) normalize()
+    updateAutoplay()
+  })
+
+  let raf
+  new ResizeObserver(() => {
+    cancelAnimationFrame(raf)
+    raf = requestAnimationFrame(measure)
+  }).observe(viewport)
+
+  measure()
+}
+
+/* ---------- My Projects carousel ---------- */
+function initProjects() {
+  const viewport = document.getElementById('projects-viewport')
+  const track = document.getElementById('projects-carousel')
+  const dotsWrap = document.getElementById('projDots')
+  const prevBtn = document.getElementById('projPrevBtn')
+  const nextBtn = document.getElementById('projNextBtn')
+  if (!viewport || !track || !dotsWrap || !prevBtn || !nextBtn) return
+
+  const cards = Array.from(track.children)
+  const autoplayDelay = 4000
+  track.classList.add('reveal-stagger')
+
+  let perView = 0
+  let pages = 1
+  let page = 0
+  let timer = null
+  let inView = false
+  let hovering = false
+  let dragging = false
+
+  // Cards per slide follow the space actually available to the carousel
+  // (the main column is narrow next to the sticky profile card on laptops).
+  const getPerView = (width) => (width >= 600 ? 3 : width >= 400 ? 2 : 1)
+
+  function buildDots() {
+    dotsWrap.textContent = ''
+    for (let i = 0; i < pages; i++) {
+      const dot = document.createElement('button')
+      dot.type = 'button'
+      dot.setAttribute('aria-label', `Go to slide ${i + 1} of ${pages}`)
+      dot.addEventListener('click', () => {
+        page = i
+        render()
+        restartAutoplay()
+      })
+      dotsWrap.appendChild(dot)
+    }
+  }
+
+  function render(animate = true, offset = 0) {
+    track.style.transition = animate && !isReduced() ? '' : 'none'
+    track.style.transform = `translate3d(calc(${-page} * (100% + var(--gap)) + ${offset}px), 0, 0)`
+    Array.from(dotsWrap.children).forEach((dot, i) => {
+      dot.className = 'proj-dot w-2.5 h-2.5 rounded-full cursor-pointer transition-colors duration-300 ' +
+        (i === page ? 'bg-orange-600' : 'bg-white bg-opacity-30')
+      dot.setAttribute('aria-current', i === page ? 'true' : 'false')
+    })
+    cards.forEach((card, i) => card.setAttribute('aria-hidden', String(Math.floor(i / perView) !== page)))
+  }
+
+  function layout() {
+    const next = getPerView(viewport.clientWidth)
+    if (next !== perView) {
+      const firstVisible = page * perView
+      perView = next
+      pages = Math.ceil(cards.length / perView)
+      page = Math.min(Math.floor(firstVisible / perView), pages - 1)
+      track.style.setProperty('--per-view', perView)
+      cards.forEach((card, i) => card.style.setProperty('--stagger', `${(i % perView) * 90}ms`))
+      buildDots()
+    }
+    render(false)
+  }
+
+  const goTo = (p) => {
+    page = (p + pages) % pages
+    render()
+  }
+
+  function updateAutoplay() {
+    const run = inView && !hovering && !dragging && !document.hidden && !isReduced()
+    if (run && !timer) timer = setInterval(() => goTo(page + 1), autoplayDelay)
+    else if (!run && timer) {
+      clearInterval(timer)
+      timer = null
+    }
+  }
+  const restartAutoplay = () => {
+    clearInterval(timer)
+    timer = null
+    updateAutoplay()
+  }
+
+  nextBtn.addEventListener('click', () => { goTo(page + 1); restartAutoplay() })
+  prevBtn.addEventListener('click', () => { goTo(page - 1); restartAutoplay() })
+
+  enableSwipe(viewport, {
+    onStart: () => { dragging = true; updateAutoplay(); render(false) },
+    onMove: (dx) => render(false, dx),
+    onEnd: (dir) => {
+      dragging = false
+      if (dir) goTo(page + dir)
+      else render()
+      updateAutoplay()
+    },
+  })
+
+  viewport.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { hovering = true; updateAutoplay() } })
+  viewport.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { hovering = false; updateAutoplay() } })
+  onVisibilityChange(viewport, (v) => { inView = v; updateAutoplay() })
+  document.addEventListener('visibilitychange', updateAutoplay)
+
+  let raf
+  new ResizeObserver(() => {
+    cancelAnimationFrame(raf)
+    raf = requestAnimationFrame(layout)
+  }).observe(viewport)
+
+  layout()
+}
+
+/* ---------- "Book A Call" marquee ---------- */
+function initMarquee() {
+  const marquee = document.querySelector('.marquee')
+  if (!marquee) return
+  const track = marquee.querySelector('.marquee__track')
+  const group = marquee.querySelector('.marquee__group')
+  const speed = 60 // px per second (≈ the old <marquee scrollamount="5">)
+
+  let lastWidth = 0
+  new ResizeObserver(() => {
+    const width = group.getBoundingClientRect().width
+    if (Math.abs(width - lastWidth) < 1) return
+    lastWidth = width
+    track.style.setProperty('--marquee-duration', `${(width / speed).toFixed(2)}s`)
+  }).observe(group)
+
+  // Don't animate while off screen
+  onVisibilityChange(marquee, (visible) => track.classList.toggle('is-paused', !visible))
+}
+
+initSideMenu()
+initContactButtons()
+initCounters()
+initDataAnimate()
+initLetterHeading('tech-stack', 'text-5xl')
+initLetterHeading('Work-process', 'text-7xl')
+initScrollHeading()
+initTechStack()
+initWorkProcess()
+initProjects()
+initMarquee()
+initReveal()
